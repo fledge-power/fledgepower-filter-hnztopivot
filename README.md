@@ -1,2 +1,2 @@
 # fledgepower-filter-hnztopivot
-A filter plugin which can be used to convert EDF HNZ data objects to FledgePower pivot model objects
+A filter plugin which can be used to convert HNZ objects to FledgePower pivot model objects
