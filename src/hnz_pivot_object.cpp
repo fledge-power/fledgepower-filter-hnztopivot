@@ -272,7 +272,7 @@ Datapoint* PivotObject::getCdc(Datapoint* dp)
     return cdcDp;
 }
 
-bool PivotObject::readBool(Datapoint* dp, const std::string& name, bool& out)
+bool PivotObject::readBool(Datapoint* dp, const std::string& name, bool& out) const
 {
     if (dp->getName() == name) {
         if (getValueInt(dp) > 0)
