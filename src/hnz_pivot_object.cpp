@@ -272,6 +272,18 @@ Datapoint* PivotObject::getCdc(Datapoint* dp)
     return cdcDp;
 }
 
+bool PivotObject::readBool(Datapoint* dp, const std::string& name, bool& out)
+{
+    if (dp->getName() == name) {
+        if (getValueInt(dp) > 0)
+            out = true;
+        else
+            out = false;
+        return true;
+    }
+    return false;
+}
+
 void PivotObject::handleDetailQuality(Datapoint* detailQuality)
 {
     DatapointValue& dpv = detailQuality->getData();
@@ -281,54 +293,14 @@ void PivotObject::handleDetailQuality(Datapoint* detailQuality)
 
     const std::vector<Datapoint*>* datapoints = dpv.getDpVec();
     for (Datapoint* child : *datapoints) {
-        if (child->getName() == "badReference") {
-            if (getValueInt(child) > 0)
-                m_badReference = true;
-            else
-                m_badReference = false;
-        }
-        else if (child->getName() == "failure") {
-            if (getValueInt(child) > 0)
-                m_failure = true;
-            else
-                m_failure = false;
-        }
-        else if (child->getName() == "inconsistent") {
-            if (getValueInt(child) > 0)
-                m_inconsistent = true;
-            else
-                m_inconsistent = false;
-        }
-        else if (child->getName() == "inacurate") {
-            if (getValueInt(child) > 0)
-                m_inacurate = true;
-            else
-                m_inacurate = false;
-        }
-        else if (child->getName() == "oldData") {
-            if (getValueInt(child) > 0)
-                m_oldData = true;
-            else
-                m_oldData = false;
-        }
-        else if (child->getName() == "oscillatory") {
-            if (getValueInt(child) > 0)
-                m_oscillatory = true;
-            else
-                m_oscillatory = false;
-        }
-        else if (child->getName() == "outOfRange") {
-            if (getValueInt(child) > 0)
-                m_outOfRange = true;
-            else
-                m_outOfRange = false;
-        }
-        else if (child->getName() == "overflow") {
-            if (getValueInt(child) > 0)
-                m_overflow = true;
-            else
-                m_overflow = false;
-        }
+        if(readBool(child, "badReference", m_badReference)) continue;
+        if(readBool(child, "failure", m_failure)) continue;
+        if(readBool(child, "inconsistent", m_inconsistent)) continue;
+        if(readBool(child, "inacurate", m_inacurate)) continue;
+        if(readBool(child, "oldData", m_oldData)) continue;
+        if(readBool(child, "oscillatory", m_oscillatory)) continue;
+        if(readBool(child, "outOfRange", m_outOfRange)) continue;
+        if(readBool(child, "overflow", m_overflow)) continue;
     }
 }
 
@@ -376,112 +348,16 @@ void PivotObject::handleQuality(Datapoint* q)
         else if (child->getName() == "DetailQuality") {
             handleDetailQuality(child);
         }
-        else if (child->getName() == "operatorBlocked") {
-            if (getValueInt(child) > 0)
-                m_operatorBlocked = true;
-            else
-                m_operatorBlocked = false;
+        else if (readBool(child, "operatorBlocked", m_operatorBlocked)) {
+            continue;
         }
-        else if (child->getName() == "test") {
-            if (getValueInt(child) > 0)
-                m_test = true;
-            else
-                m_test = false;
+        else if (readBool(child, "test", m_test)) {
+            continue;
         }
     }
 }
 
-PivotObject::PivotObject(Datapoint* pivotData) {
-    if (pivotData->getName() != "PIVOT") {
-        throw PivotObjectException("No pivot object");
-    }
-
-    m_dp = pivotData;
-    m_ln = nullptr;
-    std::vector<std::string> unknownChildrenNames;
-
-    DatapointValue& dpv = pivotData->getData();
-    if (dpv.getType() != DatapointValue::T_DP_DICT) {
-        throw PivotObjectException("pivot object not found");
-    }
-
-    const std::vector<Datapoint*>* datapoints = dpv.getDpVec();
-    for (Datapoint* child : *datapoints) {
-        if (child->getName() == "GTIS") {
-            m_pivotClass = PivotClass::GTIS;
-            m_ln = child;
-        }
-        else if (child->getName() == "GTIM") {
-            m_pivotClass = PivotClass::GTIM;
-            m_ln = child;
-        }
-        else if (child->getName() == "GTIC") {
-            m_pivotClass = PivotClass::GTIC;
-            m_ln = child;
-        }
-        else {
-            unknownChildrenNames.push_back(child->getName());
-        }
-
-        if (m_ln != nullptr) {
-            break;
-        }
-    }
-
-    if (m_ln == nullptr) {
-        throw PivotObjectException("pivot object type not supported: " + PivotUtility::join(unknownChildrenNames));
-    }
-
-    m_identifier = getChildValueStr(m_ln, "Identifier");
-
-    if (getChild(m_ln, "ComingFrom")) {
-        m_comingFrom = getChildValueStr(m_ln, "ComingFrom");
-    }
-
-    Datapoint* cause = getChild(m_ln, "Cause");
-
-    if (cause) {
-        m_cause = getChildValueInt(cause, "stVal");
-    }
-
-    Datapoint* confirmation = getChild(m_ln, "Cause");
-
-    if (confirmation) {
-        int confirmationVal = getChildValueInt(confirmation, "stVal");
-
-        if (confirmationVal > 0) {
-            m_isConfirmation = true;
-        }
-    }
-
-    Datapoint* tmOrg = getChild(m_ln, "TmOrg");
-
-    if (tmOrg) {
-        std::string tmOrgValue = getChildValueStr(tmOrg, "stVal");
-
-        if (tmOrgValue == "substituted") {
-            m_timestampSubstituted = true;
-        }
-        else {
-            m_timestampSubstituted = false;
-        }
-    }
-
-    Datapoint* tmValidity  = getChild(m_ln, "TmValidity");
-
-    if (tmValidity) {
-        std::string tmValidityValue = getChildValueStr(tmValidity, "stVal");
-
-        if (tmValidityValue == "invalid") {
-            m_timestampInvalid = true;
-        }
-        else {
-            m_timestampInvalid = false;
-        }
-    }
-
-    Datapoint* cdc = getCdc(m_ln);
-
+void PivotObject::handleCdc(Datapoint* cdc) {
     if (cdc == nullptr) {
         throw PivotObjectException("CDC element not found");
     }
@@ -542,6 +418,103 @@ PivotObject::PivotObject(Datapoint* pivotData) {
             intVal = getValueLong(ctlVal);
         }
     }
+}
+
+void PivotObject::handleGTIX() {
+    m_identifier = getChildValueStr(m_ln, "Identifier");
+
+    if (getChild(m_ln, "ComingFrom")) {
+        m_comingFrom = getChildValueStr(m_ln, "ComingFrom");
+    }
+
+    Datapoint* cause = getChild(m_ln, "Cause");
+
+    if (cause) {
+        m_cause = getChildValueInt(cause, "stVal");
+    }
+
+    Datapoint* confirmation = getChild(m_ln, "Cause");
+
+    if (confirmation) {
+        int confirmationVal = getChildValueInt(confirmation, "stVal");
+
+        if (confirmationVal > 0) {
+            m_isConfirmation = true;
+        }
+    }
+
+    Datapoint* tmOrg = getChild(m_ln, "TmOrg");
+
+    if (tmOrg) {
+        std::string tmOrgValue = getChildValueStr(tmOrg, "stVal");
+
+        if (tmOrgValue == "substituted") {
+            m_timestampSubstituted = true;
+        }
+        else {
+            m_timestampSubstituted = false;
+        }
+    }
+
+    Datapoint* tmValidity  = getChild(m_ln, "TmValidity");
+
+    if (tmValidity) {
+        std::string tmValidityValue = getChildValueStr(tmValidity, "stVal");
+
+        if (tmValidityValue == "invalid") {
+            m_timestampInvalid = true;
+        }
+        else {
+            m_timestampInvalid = false;
+        }
+    }
+
+    Datapoint* cdc = getCdc(m_ln);
+    handleCdc(cdc);
+}
+
+PivotObject::PivotObject(Datapoint* pivotData) {
+    if (pivotData->getName() != "PIVOT") {
+        throw PivotObjectException("No pivot object");
+    }
+
+    m_dp = pivotData;
+    m_ln = nullptr;
+    std::vector<std::string> unknownChildrenNames;
+
+    DatapointValue& dpv = pivotData->getData();
+    if (dpv.getType() != DatapointValue::T_DP_DICT) {
+        throw PivotObjectException("pivot object not found");
+    }
+
+    const std::vector<Datapoint*>* datapoints = dpv.getDpVec();
+    for (Datapoint* child : *datapoints) {
+        if (child->getName() == "GTIS") {
+            m_pivotClass = PivotClass::GTIS;
+            m_ln = child;
+        }
+        else if (child->getName() == "GTIM") {
+            m_pivotClass = PivotClass::GTIM;
+            m_ln = child;
+        }
+        else if (child->getName() == "GTIC") {
+            m_pivotClass = PivotClass::GTIC;
+            m_ln = child;
+        }
+        else {
+            unknownChildrenNames.push_back(child->getName());
+        }
+
+        if (m_ln != nullptr) {
+            break;
+        }
+    }
+
+    if (m_ln == nullptr) {
+        throw PivotObjectException("pivot object type not supported: " + PivotUtility::join(unknownChildrenNames));
+    }
+
+    handleGTIX();
 }
 
 PivotObject::PivotObject(const std::string& pivotLN, const std::string& valueType)

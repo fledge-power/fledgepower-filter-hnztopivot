@@ -244,10 +244,8 @@ Datapoint* HNZPivotFilter::convertTSToPivot(const std::string& assetName, std::m
     if (!attributeFound["do_outdated"]) {
         PivotUtility::log_warn("%s Missing attribute do_outdated in TS", beforeLog.c_str());
     }
-    else if (!dataObject.doOutdated) {
-        if (!attributeFound["do_value"]) {
-            PivotUtility::log_warn("%s Missing attribute do_value in TS", beforeLog.c_str());
-        }
+    else if (!dataObject.doOutdated && !attributeFound["do_value"]) {
+        PivotUtility::log_warn("%s Missing attribute do_value in TS", beforeLog.c_str());
     }
     // Pivot conversion
     const std::string& pivotType = exchangeConfig->getPivotType();
@@ -299,10 +297,8 @@ Datapoint* HNZPivotFilter::convertTMToPivot(const std::string& assetName, std::m
     if (!attributeFound["do_outdated"]) {
         PivotUtility::log_warn("%s Missing attribute do_outdated in TM", beforeLog.c_str());
     }
-    else if (!dataObject.doOutdated) {
-        if (!attributeFound["do_value"]) {
-            PivotUtility::log_warn("%s Missing attribute do_value in TM", beforeLog.c_str());
-        }
+    else if (!dataObject.doOutdated && !attributeFound["do_value"]) {
+        PivotUtility::log_warn("%s Missing attribute do_value in TM", beforeLog.c_str());
     }
     // Pivot conversion
     PivotObject pivot("GTIM", exchangeConfig->getPivotType());

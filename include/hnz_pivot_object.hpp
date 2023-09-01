@@ -163,6 +163,9 @@ public:
 private:
 
     Datapoint* getCdc(Datapoint* dp);
+    bool readBool(Datapoint* dp, const std::string& name, bool& out);
+    void handleGTIX();
+    void handleCdc(Datapoint* cdc);
     void handleDetailQuality(Datapoint* detailQuality);
     void handleQuality(Datapoint* q);
 
