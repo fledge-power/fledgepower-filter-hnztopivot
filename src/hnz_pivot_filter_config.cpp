@@ -20,22 +20,13 @@ HNZPivotDataPoint::HNZPivotDataPoint(const std::string& label, const std::string
     m_label(label), m_pivotId(pivotId), m_pivotType(pivotType), m_typeIdStr(typeIdStr), m_address(address)
 {}
 
-HNZPivotDataPoint::~HNZPivotDataPoint()
-{}
-
-HNZPivotConfig::HNZPivotConfig()
-{}
-
-HNZPivotConfig::~HNZPivotConfig()
-{}
-
 void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
 {
   m_exchange_data_is_complete = false;
   bool is_complete = true;
 
-  Document document;
-  if (document.Parse(const_cast<char *>(exchangeConfig.c_str())).HasParseError()) {
+  rapidjson::Document document;
+  if (document.Parse(exchangeConfig.c_str()).HasParseError()) {
     PivotUtility::log_fatal("Parsing error in exchanged_data json, offset " +
                                std::to_string(static_cast<unsigned>(document.GetErrorOffset())) +
                                " " +
@@ -46,14 +37,14 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
 
   if (!m_check_object(document, JSON_EXCHANGED_DATA_NAME)) return;
 
-  const Value &info = document[JSON_EXCHANGED_DATA_NAME];
+  const rapidjson::Value &info = document[JSON_EXCHANGED_DATA_NAME];
 
   is_complete &= m_check_string(info, JSON_NAME);
   is_complete &= m_check_string(info, JSON_VERSION);
 
   if (!m_check_array(info, DATAPOINTS)) return;
 
-  for (const Value &msg : info[DATAPOINTS].GetArray()) {
+  for (const rapidjson::Value &msg : info[DATAPOINTS].GetArray()) {
     if (!msg.IsObject()) return;
 
     std::string label;
@@ -66,7 +57,7 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
 
     if (!m_check_array(msg, PROTOCOLS)) continue;
   
-    for (const Value &protocol : msg[PROTOCOLS].GetArray()) {
+    for (const rapidjson::Value &protocol : msg[PROTOCOLS].GetArray()) {
       if (!protocol.IsObject()) return;
 
       std::string protocol_name;
@@ -99,7 +90,7 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
   m_exchange_data_is_complete = is_complete;
 }
 
-bool HNZPivotConfig::m_check_string(const Value &json, const char *key) {
+bool HNZPivotConfig::m_check_string(const rapidjson::Value &json, const char *key) {
   if (!json.HasMember(key) || !json[key].IsString()) {
     std::string s = key;
     PivotUtility::log_error(
@@ -110,7 +101,7 @@ bool HNZPivotConfig::m_check_string(const Value &json, const char *key) {
   return true;
 }
 
-bool HNZPivotConfig::m_check_array(const Value &json, const char *key) {
+bool HNZPivotConfig::m_check_array(const rapidjson::Value &json, const char *key) {
   if (!json.HasMember(key) || !json[key].IsArray()) {
     std::string s = key;
     PivotUtility::log_error("The array " + s +
@@ -120,7 +111,7 @@ bool HNZPivotConfig::m_check_array(const Value &json, const char *key) {
   return true;
 }
 
-bool HNZPivotConfig::m_check_object(const Value &json, const char *key) {
+bool HNZPivotConfig::m_check_object(const rapidjson::Value &json, const char *key) {
   if (!json.HasMember(key) || !json[key].IsObject()) {
     std::string s = key;
     PivotUtility::log_error("The object " + s +
@@ -130,7 +121,7 @@ bool HNZPivotConfig::m_check_object(const Value &json, const char *key) {
   return true;
 }
 
-bool HNZPivotConfig::m_retrieve(const Value &json, const char *key,
+bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key,
                          unsigned int *target) {
   if (!json.HasMember(key) || !json[key].IsUint()) {
     std::string s = key;
@@ -143,7 +134,7 @@ bool HNZPivotConfig::m_retrieve(const Value &json, const char *key,
   return true;
 }
 
-bool HNZPivotConfig::m_retrieve(const Value &json, const char *key,
+bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key,
                          unsigned int *target, unsigned int def) {
   if (!json.HasMember(key)) {
     *target = def;
@@ -159,7 +150,7 @@ bool HNZPivotConfig::m_retrieve(const Value &json, const char *key,
   return true;
 }
 
-bool HNZPivotConfig::m_retrieve(const Value &json, const char *key, std::string *target) {
+bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key, std::string *target) {
   if (!json.HasMember(key) || !json[key].IsString()) {
     std::string s = key;
     PivotUtility::log_error(
@@ -171,8 +162,8 @@ bool HNZPivotConfig::m_retrieve(const Value &json, const char *key, std::string 
   return true;
 }
 
-bool HNZPivotConfig::m_retrieve(const Value &json, const char *key, std::string *target,
-                         std::string def) {
+bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key, std::string *target,
+                         const std::string& def) {
   if (!json.HasMember(key)) {
     *target = def;
   } else {
@@ -187,7 +178,7 @@ bool HNZPivotConfig::m_retrieve(const Value &json, const char *key, std::string 
   return true;
 }
 
-bool HNZPivotConfig::m_retrieve(const Value &json, const char *key,
+bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key,
                          long long int *target, long long int def) {
   if (!json.HasMember(key)) {
     *target = def;

@@ -31,13 +31,10 @@ constexpr char HNZ_NAME[] = "hnzip";
 constexpr char MESSAGE_CODE[] = "typeid";
 constexpr char MESSAGE_ADDRESS[] = "address";
 
-using namespace rapidjson;
-
 class HNZPivotDataPoint
 {
 public:
     HNZPivotDataPoint(const std::string& label, const std::string& pivotId, const std::string& pivotType, const std::string& typeIdStr, unsigned int address);
-    ~HNZPivotDataPoint();
 
     const std::string& getLabel() const {return m_label;}
     const std::string& getPivotId() const {return m_pivotId;}
@@ -57,8 +54,7 @@ private:
 class HNZPivotConfig
 {
 public:
-    HNZPivotConfig();
-    ~HNZPivotConfig();
+    HNZPivotConfig() = default;
 
     void importExchangeConfig(const std::string& exchangeConfig);
 
@@ -68,15 +64,15 @@ public:
     bool isComplete() const {return m_exchange_data_is_complete;};
 
 private:
-    static bool m_check_string(const Value &json, const char *key);
-    static bool m_check_array(const Value &json, const char *key);
-    static bool m_check_object(const Value &json, const char *key);
+    static bool m_check_string(const rapidjson::Value &json, const char *key);
+    static bool m_check_array(const rapidjson::Value &json, const char *key);
+    static bool m_check_object(const rapidjson::Value &json, const char *key);
 
-    static bool m_retrieve(const Value &json, const char *key, unsigned int *target);
-    static bool m_retrieve(const Value &json, const char *key, unsigned int *target, unsigned int def);
-    static bool m_retrieve(const Value &json, const char *key, std::string *target);
-    static bool m_retrieve(const Value &json, const char *key, std::string *target, std::string def);
-    static bool m_retrieve(const Value &json, const char *key, long long int *target, long long int def);
+    static bool m_retrieve(const rapidjson::Value &json, const char *key, unsigned int *target);
+    static bool m_retrieve(const rapidjson::Value &json, const char *key, unsigned int *target, unsigned int def);
+    static bool m_retrieve(const rapidjson::Value &json, const char *key, std::string *target);
+    static bool m_retrieve(const rapidjson::Value &json, const char *key, std::string *target, const std::string& def);
+    static bool m_retrieve(const rapidjson::Value &json, const char *key, long long int *target, long long int def);
     
     std::string m_getLookupHash(const std::string& typeIdStr, unsigned int address) const;
     

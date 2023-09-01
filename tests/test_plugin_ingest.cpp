@@ -217,7 +217,7 @@ static void createReadingSet(ReadingSet*& outReadingSet, const std::string& asse
 static bool hasChild(Datapoint& dp, const std::string& childLabel) {
     DatapointValue& dpv = dp.getData();
 
-    auto dps = dpv.getDpVec();
+    const std::vector<Datapoint*>* dps = dpv.getDpVec();
 
     for (auto sdp : *dps) {
         if (sdp->getName() == childLabel) {
@@ -231,7 +231,7 @@ static bool hasChild(Datapoint& dp, const std::string& childLabel) {
 static Datapoint* getChild(Datapoint& dp, const std::string& childLabel) {
     DatapointValue& dpv = dp.getData();
 
-    auto dps = dpv.getDpVec();
+    const std::vector<Datapoint*>* dps = dpv.getDpVec();
 
     for (Datapoint* childDp : *dps) {
         if (childDp->getName() == childLabel) {

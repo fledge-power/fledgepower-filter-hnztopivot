@@ -99,7 +99,7 @@ static const char *default_config = QUOTE({
 /**
  * The C API plugin information structure
  */
-static PLUGIN_INFORMATION info = {
+static PLUGIN_INFORMATION pluginInfo = {
 	   FILTER_NAME,			// Name
 	   VERSION,			    // Version
 	   0,		            // Flags
@@ -113,7 +113,7 @@ static PLUGIN_INFORMATION info = {
  */
 PLUGIN_INFORMATION *plugin_info()
 {
-	return &info;
+	return &pluginInfo;
 }
 
 /**
@@ -130,12 +130,12 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
 
     if (config == nullptr) {
         PivotUtility::log_warn("%s No config provided for filter, using default config", beforeLog.c_str());
-        PLUGIN_INFORMATION *info = plugin_info();
+        auto info = plugin_info();
 	    config = new ConfigCategory("hnztopivot", info->config);
         config->setItemsValueFromDefault();
     }
     
-    HNZPivotFilter* pivotFilter = new HNZPivotFilter(FILTER_NAME,
+    auto pivotFilter = new HNZPivotFilter(FILTER_NAME,
                                 *config, outHandle, output);
 
 	return static_cast<PLUGIN_HANDLE>(pivotFilter);
@@ -150,7 +150,7 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
 void plugin_ingest(PLUGIN_HANDLE handle,
                    READINGSET *readingSet)
 {
-    HNZPivotFilter* pivotFilter = static_cast<HNZPivotFilter*>(handle);
+    auto pivotFilter = static_cast<HNZPivotFilter*>(handle);
     pivotFilter->ingest(readingSet);
 }
 
@@ -162,7 +162,7 @@ void plugin_ingest(PLUGIN_HANDLE handle,
  */
 void plugin_reconfigure(PLUGIN_HANDLE handle, const std::string& newConfig)
 {
-    HNZPivotFilter* pivotFilter = static_cast<HNZPivotFilter*>(handle);
+    auto pivotFilter = static_cast<HNZPivotFilter*>(handle);
     pivotFilter->reconfigure(newConfig);
 }
 
@@ -171,7 +171,7 @@ void plugin_reconfigure(PLUGIN_HANDLE handle, const std::string& newConfig)
  */
 void plugin_shutdown(PLUGIN_HANDLE handle)
 {
-    HNZPivotFilter* pivotFilter = static_cast<HNZPivotFilter*>(handle);
+    auto pivotFilter = static_cast<HNZPivotFilter*>(handle);
     delete pivotFilter;
 }
 

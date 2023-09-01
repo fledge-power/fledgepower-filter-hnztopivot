@@ -19,10 +19,29 @@
 
 class Datapoint;
 class HNZPivotConfig;
+class HNZPivotDataPoint;
 
 class HNZPivotFilter : public FledgeFilter {
 
 public:
+    /*
+     * Struct used to store fields of a data object during processing
+    */
+    struct GenericDataObject {
+        std::string doType = "";
+        unsigned int doStation = 0;
+        unsigned int doAddress = 0;
+        Datapoint* doValue = nullptr;
+        unsigned int doValid = 0;
+        std::string doAn = "";
+        bool doCg = false;
+        bool doOutdated = false;
+        unsigned long doTs = 0;
+        bool doTsIv = false;
+        bool doTsC = false;
+        bool doTsS = false;
+    };
+
     /**
      * Constructor for the HNZPivotFilter.
      *
@@ -38,8 +57,6 @@ public:
         ConfigCategory& filterConfig,
         OUTPUT_HANDLE* outHandle,
         OUTPUT_STREAM output);
-
-    ~HNZPivotFilter();
 
     /**
      * The actual filtering code
@@ -64,7 +81,7 @@ public:
     void reconfigure(const std::string& newConfig);
 
 private:
-    void readConfig(ConfigCategory& config);
+    void readConfig(const ConfigCategory& config);
 
     Datapoint* addElement(Datapoint* dp, const std::string& elementPath);
 
@@ -76,11 +93,28 @@ private:
     template <class T>
     Datapoint* createDpWithValue(const std::string& name, const T value);
 
+    void convertDatapoint(const std::string& assetName, Datapoint* dp, std::vector<Datapoint*>& convertedDatapoints);
+
+    template <typename T>
+    void static readAttribute(std::map<std::string, bool>& attributeFound, Datapoint* dp,
+                              const std::string& targetName, T& out);
+    void static readAttribute(std::map<std::string, bool>& attributeFound, Datapoint* dp,
+                              const std::string& targetName, Datapoint*& out);
+    void static readAttribute(std::map<std::string, bool>& attributeFound, Datapoint* dp,
+                              const std::string& targetName, std::string& out);
     Datapoint* convertDatapointToPivot(const std::string& assetName, Datapoint* sourceDp);
+    Datapoint* convertTSToPivot(const std::string& assetName, std::map<std::string, bool>& attributeFound,
+                                const GenericDataObject& dataObject, std::shared_ptr<HNZPivotDataPoint> exchangeConfig);
+    Datapoint* convertTMToPivot(const std::string& assetName, std::map<std::string, bool>& attributeFound,
+                                const GenericDataObject& dataObject, std::shared_ptr<HNZPivotDataPoint> exchangeConfig);
+    Datapoint* convertTCACKToPivot(const std::string& assetName, std::map<std::string, bool>& attributeFound,
+                                   const GenericDataObject& dataObject, std::shared_ptr<HNZPivotDataPoint> exchangeConfig);
+    Datapoint* convertTVCACKToPivot(const std::string& assetName, std::map<std::string, bool>& attributeFound,
+                                    const GenericDataObject& dataObject, std::shared_ptr<HNZPivotDataPoint> exchangeConfig);
 
     Datapoint* convertDatapointToHNZ(const std::string& assetName, Datapoint* sourceDp);
 
-    std::shared_ptr<HNZPivotConfig> m_config;
+    std::shared_ptr<HNZPivotConfig> m_filterConfig;
     std::recursive_mutex            m_configMutex;
 };
 

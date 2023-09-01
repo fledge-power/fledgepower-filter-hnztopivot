@@ -33,7 +33,9 @@ class PivotObjectException : public std::exception //NOSONAR
 class PivotTimestamp
 {
 public:
-    PivotTimestamp(Datapoint* timestampData);
+    explicit PivotTimestamp(Datapoint* timestampData);
+    PivotTimestamp(PivotTimestamp& other) = delete;
+    PivotTimestamp& operator=(const PivotTimestamp& other) = delete;
     
     int SecondSinceEpoch() const {return m_secondSinceEpoch;}
     int FractionOfSecond() const {return m_fractionOfSecond;}
@@ -81,14 +83,14 @@ class PivotObject
 {
 public:
 
-    typedef enum
+    enum class PivotClass
 	{
 		GTIS,
 		GTIM,
         GTIC
-	} PivotClass;
+	};
 
-    typedef enum
+    enum class PivotCdc
     {
         SPS,
         DPS,
@@ -96,25 +98,24 @@ public:
         SPC,
         DPC,
         INC
-    } PivotCdc;
+    };
 
-    typedef enum
+    enum class Validity
     {
         GOOD,
         INVALID,
         RESERVED,
         QUESTIONABLE
-    } Validity;
+    };
 
-    typedef enum
+    enum class Source
     {
         PROCESS,
         SUBSTITUTED
-    } Source;
+    };
 
-    PivotObject(Datapoint* pivotData);
+    explicit PivotObject(Datapoint* pivotData);
     PivotObject(const std::string& pivotLN, const std::string& valueType);
-    ~PivotObject();
 
     void setIdentifier(const std::string& identifier);
     void setCause(int cause);
@@ -189,7 +190,7 @@ private:
     bool m_operatorBlocked = false;
     bool m_test = false;
 
-    PivotTimestamp* m_timestamp = nullptr;
+    std::shared_ptr<PivotTimestamp> m_timestamp;
 
     bool m_timestampSubstituted = false;
     bool m_timestampInvalid = false;
