@@ -265,7 +265,7 @@ Datapoint* PivotObject::getCdc(Datapoint* dp)
             break;
         }
     }
-    if(!unknownChildrenNames.empty()) {
+    if(cdcDp == nullptr) {
         throw PivotObjectException("CDC type unknown: " + PivotUtility::join(unknownChildrenNames));
     }
     
@@ -628,15 +628,18 @@ void PivotObject::addTimestamp(unsigned long doTs, bool doTsS)
     }
 }
 
-Datapoint* PivotObject::toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig)
+std::vector<Datapoint*> PivotObject::toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig)
 {
-    Datapoint* commandObject = createDp("command_object");
+    std::vector<Datapoint*> commandObject;
 
-    if (commandObject) {
-        addElementWithValue(commandObject, "co_type", exchangeConfig->getTypeId());
-        addElementWithValue(commandObject, "co_addr", static_cast<long>(exchangeConfig->getAddress()));
-        addElementWithValue(commandObject, "co_value", intVal);
-    }
+    Datapoint* type = createDpWithValue("co_type", exchangeConfig->getTypeId());
+    commandObject.push_back(type);
+
+    Datapoint* ca = createDpWithValue("co_addr", static_cast<long>(exchangeConfig->getAddress()));
+    commandObject.push_back(ca);
+
+    Datapoint* ioa = createDpWithValue("co_value", intVal);
+    commandObject.push_back(ioa);
 
     return commandObject;
 }

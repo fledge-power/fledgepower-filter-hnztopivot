@@ -384,9 +384,9 @@ Datapoint* HNZPivotFilter::convertTVCACKToPivot(const std::string& assetName, st
     return pivot.toDatapoint();
 }
 
-Datapoint* HNZPivotFilter::convertDatapointToHNZ(const std::string& assetName, Datapoint* sourceDp)
+std::vector<Datapoint*> HNZPivotFilter::convertDatapointToHNZ(const std::string& assetName, Datapoint* sourceDp)
 {
-    Datapoint* convertedDatapoint = nullptr;
+    std::vector<Datapoint*> convertedDatapoints;
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - " + assetName + " - HNZPivotFilter::convertDatapointToHNZ -";
 
     try {
@@ -400,24 +400,20 @@ Datapoint* HNZPivotFilter::convertDatapointToHNZ(const std::string& assetName, D
             }
             PivotUtility::log_error("%s Unknown pivot ID: %s (available: %s)",
                                         beforeLog.c_str(), pivotId.c_str(), PivotUtility::join(pivotIds).c_str());
-            return nullptr;
+            return convertedDatapoints;
         }
         auto exchangeConfig = exchangeData[pivotId];
-        if (!checkLabelMatch(assetName, exchangeConfig)) {
-            PivotUtility::log_warn("%s Input label (%s) does not match configured label (%s) for pivot ID: %s",
-                                        beforeLog.c_str(), assetName.c_str(), exchangeConfig->getLabel().c_str(), pivotId.c_str());
-        }
-        convertedDatapoint = pivotObject.toHnzCommandObject(exchangeConfig);
+        convertedDatapoints = pivotObject.toHnzCommandObject(exchangeConfig);
     }
     catch (PivotObjectException& e)
     {
         PivotUtility::log_error("%s Failed to convert pivot object: %s", beforeLog.c_str(), e.getContext().c_str());
     }
 
-    return convertedDatapoint;
+    return convertedDatapoints;
 }
 
-void HNZPivotFilter::convertDatapoint(const std::string& assetName, Datapoint* dp, std::vector<Datapoint*>& convertedDatapoints) {
+bool HNZPivotFilter::convertDatapoint(const std::string& assetName, Datapoint* dp, std::vector<Datapoint*>& convertedDatapoints) {
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - HNZPivotFilter::processDatapoint -";
     if (dp->getName() == "data_object") {
         Datapoint* convertedDp = convertDatapointToPivot(assetName, dp);
@@ -427,25 +423,27 @@ void HNZPivotFilter::convertDatapoint(const std::string& assetName, Datapoint* d
         }
         else {
             PivotUtility::log_error("%s Failed to convert data_object", beforeLog.c_str());
+            return false;
         }
     }
     else if (dp->getName() == "PIVOT") {
-        Datapoint* convertedDp = convertDatapointToHNZ(assetName, dp);
+        std::vector<Datapoint*> convertedDps = convertDatapointToHNZ(assetName, dp);
 
-        if (convertedDp) {
-            convertedDatapoints.push_back(convertedDp);
+        if (!convertedDps.empty()) {
+            convertedDatapoints.insert(convertedDatapoints.end(), convertedDps.begin(), convertedDps.end());
         }
         else {
             PivotUtility::log_error("%s Failed to convert PIVOT object", beforeLog.c_str());
+            return false;
         }
     }
-    else if (dp->getName() == "south_event") {
-        PivotUtility::log_debug("%s Forwarding south_event unchanged", beforeLog.c_str());
-        convertedDatapoints.push_back(new Datapoint(dp->getName(), dp->getData()));
-    }
     else {
-        PivotUtility::log_debug("%s Unknown reading type: %s, message removed", beforeLog.c_str(), dp->getName().c_str());
+        PivotUtility::log_debug("%s Unhandled datapoint type '%s', forwarding reading unchanged",
+                                        beforeLog.c_str(), dp->getName().c_str());
+        convertedDatapoints.push_back(new Datapoint(dp->getName(), dp->getData()));
+        return false;
     }
+    return true;
 }
 
 void HNZPivotFilter::ingest(READINGSET* readingSet)
@@ -479,8 +477,15 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
 
         PivotUtility::log_debug("%s original Reading: %s", beforeLog.c_str(), reading->toJSON().c_str());
 
+        bool success = true;
         for (Datapoint* dp : datapoints) {
-            convertDatapoint(assetName, dp, convertedDatapoints);
+            success &= convertDatapoint(assetName, dp, convertedDatapoints);
+        }
+
+        if (success) {
+            if (assetName == "PivotCommand") {
+                reading->setAssetName("HNZCommand");
+            }
         }
 
         reading->removeAllDatapoints();
