@@ -628,7 +628,7 @@ void PivotObject::addTimestamp(unsigned long doTs, bool doTsS)
     }
 }
 
-std::vector<Datapoint*> PivotObject::toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig)
+std::vector<Datapoint*> PivotObject::toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const
 {
     std::vector<Datapoint*> commandObject;
 

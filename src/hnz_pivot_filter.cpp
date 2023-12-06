@@ -384,7 +384,7 @@ Datapoint* HNZPivotFilter::convertTVCACKToPivot(const std::string& assetName, st
     return pivot.toDatapoint();
 }
 
-std::vector<Datapoint*> HNZPivotFilter::convertDatapointToHNZ(const std::string& assetName, Datapoint* sourceDp)
+std::vector<Datapoint*> HNZPivotFilter::convertDatapointToHNZ(const std::string& assetName, Datapoint* sourceDp) const
 {
     std::vector<Datapoint*> convertedDatapoints;
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - " + assetName + " - HNZPivotFilter::convertDatapointToHNZ -";
