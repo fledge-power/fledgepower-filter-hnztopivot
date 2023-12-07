@@ -635,11 +635,11 @@ std::vector<Datapoint*> PivotObject::toHnzCommandObject(std::shared_ptr<HNZPivot
     Datapoint* type = createDpWithValue("co_type", exchangeConfig->getTypeId());
     commandObject.push_back(type);
 
-    Datapoint* ca = createDpWithValue("co_addr", static_cast<long>(exchangeConfig->getAddress()));
-    commandObject.push_back(ca);
+    Datapoint* addr = createDpWithValue("co_addr", static_cast<long>(exchangeConfig->getAddress()));
+    commandObject.push_back(addr);
 
-    Datapoint* ioa = createDpWithValue("co_value", intVal);
-    commandObject.push_back(ioa);
+    Datapoint* value = createDpWithValue("co_value", intVal);
+    commandObject.push_back(value);
 
     return commandObject;
 }
