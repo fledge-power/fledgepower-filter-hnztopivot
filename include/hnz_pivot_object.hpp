@@ -136,7 +136,7 @@ public:
 
     Datapoint* toDatapoint() {return m_dp;}
 
-    Datapoint* toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig);
+    std::vector<Datapoint*> toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const;
 
     const std::string& getIdentifier() const {return m_identifier;}
     const std::string& getComingFrom() const {return m_comingFrom;}
