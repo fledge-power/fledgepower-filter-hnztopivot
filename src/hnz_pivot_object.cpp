@@ -387,11 +387,13 @@ void PivotObject::handleCdc(Datapoint* cdc) {
         Datapoint* ctlVal = getChild(cdc, "ctlVal");
 
         if (ctlVal) {
+            // In Pivot, ON=1, OFF=0
+            // In HNZ,   ON=1, OFF=2
             if (getValueInt(ctlVal) > 0) {
                 intVal = 1;
             }
             else {
-                intVal = 0;
+                intVal = 2;
             }
         }
     }
@@ -399,9 +401,11 @@ void PivotObject::handleCdc(Datapoint* cdc) {
         Datapoint* ctlVal = getChild(cdc, "ctlVal");
 
         if (ctlVal) {
+            // In Pivot, ON="on", OFF="off"
+            // In HNZ,   ON=1, OFF=2
             std::string ctlValStr = getValueStr(ctlVal);
             if (ctlValStr == "off") {
-                intVal = 0;
+                intVal = 2;
             }
             else if (ctlValStr == "on") {
                 intVal = 1;

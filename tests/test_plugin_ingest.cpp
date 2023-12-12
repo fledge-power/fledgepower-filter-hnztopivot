@@ -1438,7 +1438,7 @@ TEST_F(PivotHNZPluginIngest, PivotDoubleToTC)
     validateReading(lastReading, "HNZCommand", "", allCommandAttributeNames, {
         {"co_type", {"string", "TC"}},
         {"co_addr", {"int64_t", "143"}},
-        {"co_value", {"int64_t", "0"}},
+        {"co_value", {"int64_t", "2"}},
     });
     if(HasFatalFailure()) return;
 }
