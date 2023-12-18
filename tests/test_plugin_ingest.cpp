@@ -180,6 +180,7 @@ static const std::vector<std::string> allPivotAttributeNames = {
     "GTIM.MvTyp.t.SecondSinceEpoch", "GTIM.MvTyp.t.FractionOfSecond", "GTIM.MvTyp.t.TimeQuality.clockNotSynchronized",
     // TC/TVC messages
     "GTIC.ComingFrom", "GTIC.Identifier", "GTIC.Cause.stVal", "GTIC.TmValidity.stVal", "GTIC.TmOrg.stVal",
+    "GTIC.Confirmation.stVal",
     "GTIC.SpcTyp.stVal", "GTIC.SpcTyp.ctlVal", "GTIC.SpcTyp.q.Validity", "GTIC.SpcTyp.q.DetailQuality.oldData",
     "GTIC.SpcTyp.t.SecondSinceEpoch", "GTIC.SpcTyp.t.FractionOfSecond", "GTIC.SpcTyp.t.TimeQuality.clockNotSynchronized",
     "GTIC.DpcTyp.stVal", "GTIC.DpcTyp.ctlVal", "GTIC.DpcTyp.q.Validity", "GTIC.DpcTyp.q.DetailQuality.oldData",
@@ -1275,7 +1276,6 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivot)
             "do_type":"TC",
             "do_station":12,
             "do_addr":142,
-            "do_value":0,
             "do_valid":0
         }
     });
@@ -1293,6 +1293,40 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivot)
         {"GTIC.Identifier", {"string", "ID222222"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
+        {"GTIC.SpcTyp.q.Validity", {"string", "good"}},
+        // NB: Time was added by hnztopivot plugin
+        {"GTIC.SpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
+        {"GTIC.SpcTyp.t.FractionOfSecond", {"int64_t_range", "0;99999999"}},
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, TCNAckToPivot)
+{
+    std::string jsonMessageTCAck = QUOTE({
+        "data_object":{
+            "do_type":"TC",
+            "do_station":12,
+            "do_addr":142,
+            "do_valid":1
+        }
+    });
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "TC1", jsonMessageTCAck);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    long sec = pivotTimestampPair.first;
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "TC1", "PIVOT", allPivotAttributeNames, {
+        {"GTIC.ComingFrom", {"string", "hnzip"}},
+        {"GTIC.Identifier", {"string", "ID222222"}},
+        {"GTIC.Cause.stVal", {"int64_t", "7"}},
+        {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "1"}},
         {"GTIC.SpcTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.SpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -1308,7 +1342,6 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivotDouble)
             "do_type":"TC",
             "do_station":12,
             "do_addr":143,
-            "do_value":0,
             "do_valid":0
         }
     });
@@ -1326,6 +1359,40 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivotDouble)
         {"GTIC.Identifier", {"string", "ID333333"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
+        {"GTIC.DpcTyp.q.Validity", {"string", "good"}},
+        // NB: Time was added by hnztopivot plugin
+        {"GTIC.DpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
+        {"GTIC.DpcTyp.t.FractionOfSecond", {"int64_t_range", "0;99999999"}},
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, TCNAckToPivotDouble)
+{
+    std::string jsonMessageTCAck = QUOTE({
+        "data_object":{
+            "do_type":"TC",
+            "do_station":12,
+            "do_addr":143,
+            "do_valid":1
+        }
+    });
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "TC2", jsonMessageTCAck);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    long sec = pivotTimestampPair.first;
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "TC2", "PIVOT", allPivotAttributeNames, {
+        {"GTIC.ComingFrom", {"string", "hnzip"}},
+        {"GTIC.Identifier", {"string", "ID333333"}},
+        {"GTIC.Cause.stVal", {"int64_t", "7"}},
+        {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "1"}},
         {"GTIC.DpcTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.DpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -1359,6 +1426,41 @@ TEST_F(PivotHNZPluginIngest, TVCAckToPivot)
         {"GTIC.Identifier", {"string", "ID444444"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
+        {"GTIC.IncTyp.q.Validity", {"string", "good"}},
+        // NB: Time was added by hnztopivot plugin
+        {"GTIC.IncTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
+        {"GTIC.IncTyp.t.FractionOfSecond", {"int64_t_range", "0;99999999"}},
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, TVCNAckToPivot)
+{
+    std::string jsonMessageTVCAck = QUOTE({
+        "data_object":{
+            "do_type":"TVC",
+            "do_station":12,
+            "do_addr":31,
+            "do_value":0,
+            "do_valid":1
+        }
+    });
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "TVC1", jsonMessageTVCAck);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    long sec = pivotTimestampPair.first;
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "TVC1", "PIVOT", allPivotAttributeNames, {
+        {"GTIC.ComingFrom", {"string", "hnzip"}},
+        {"GTIC.Identifier", {"string", "ID444444"}},
+        {"GTIC.Cause.stVal", {"int64_t", "7"}},
+        {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "1"}},
         {"GTIC.IncTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.IncTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -1739,6 +1841,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
         {"GTIC.Identifier", {"string", "ID444444"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
         {"GTIC.IncTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.IncTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -2022,6 +2125,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
         {"GTIC.Identifier", {"string", "ID222222"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
         {"GTIC.SpcTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.SpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -2050,6 +2154,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
         {"GTIC.Identifier", {"string", "ID444444"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
         {"GTIC.IncTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.IncTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
