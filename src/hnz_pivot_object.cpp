@@ -268,6 +268,10 @@ Datapoint* PivotObject::getCdc(Datapoint* dp)
     if(cdcDp == nullptr) {
         throw PivotObjectException("CDC type unknown: " + PivotUtility::join(unknownChildrenNames));
     }
+    if(!checkCdcTypeMatch(m_pivotCdc, m_pivotClass)) {
+        throw PivotObjectException("CDC type (" + PivotCdcStr(m_pivotCdc) + ") does not match pivot class ("
+                                    + PivotClassStr(m_pivotClass) + ")");
+    }
     
     return cdcDp;
 }
@@ -646,4 +650,46 @@ std::vector<Datapoint*> PivotObject::toHnzCommandObject(std::shared_ptr<HNZPivot
     commandObject.push_back(value);
 
     return commandObject;
+}
+
+bool PivotObject::checkCdcTypeMatch(PivotCdc pivotCdc, PivotClass pivotClass) {
+    switch (pivotClass) {
+        case PivotClass::GTIS:
+            return pivotCdc == PivotCdc::SPS || pivotCdc == PivotCdc::DPS;
+        case PivotClass::GTIM:
+            return pivotCdc == PivotCdc::MV;
+        case PivotClass::GTIC:
+            return pivotCdc == PivotCdc::SPC || pivotCdc == PivotCdc::DPC || pivotCdc == PivotCdc::INC;
+    }
+    return false;
+}
+
+std::string PivotObject::PivotCdcStr(PivotCdc pivotCdc) {
+    switch (pivotCdc) {
+        case PivotCdc::SPS:
+            return "SpsTyp";
+        case PivotCdc::DPS:
+            return "DpsTyp";
+        case PivotCdc::MV:
+            return "MvTyp";
+        case PivotCdc::SPC:
+            return "SpcTyp";
+        case PivotCdc::DPC:
+            return "DpcTyp";
+        case PivotCdc::INC:
+            return "IncTyp";
+    }
+    return "";
+}
+
+std::string PivotObject::PivotClassStr(PivotClass pivotClass) {
+    switch (pivotClass) {
+        case PivotClass::GTIS:
+            return "GTIS";
+        case PivotClass::GTIM:
+            return "GTIM";
+        case PivotClass::GTIC:
+            return "GTIC";
+    }
+    return "";
 }

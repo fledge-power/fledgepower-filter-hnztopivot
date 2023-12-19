@@ -160,6 +160,10 @@ public:
     bool IsTimestampSubstituted() const {return m_timestampSubstituted;}
     bool IsTimestampInvalid() const {return m_timestampInvalid;}
 
+    static bool checkCdcTypeMatch(PivotCdc pivotCdc, PivotClass pivotClass);
+    static std::string PivotCdcStr(PivotCdc pivotCdc);
+    static std::string PivotClassStr(PivotClass pivotClass);
+
 private:
 
     Datapoint* getCdc(Datapoint* dp);

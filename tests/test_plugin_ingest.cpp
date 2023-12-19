@@ -1733,7 +1733,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     std::string jsonMessageInvalidPivotType = QUOTE({
         "PIVOT": {
             "GTIC": {
-                "SpsTyp": {
+                "ZZZ": {
                     "q": {
                         "Source": "process",
                         "Validity": "good"
@@ -1752,6 +1752,35 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
         }
     });
     createReadingSet(readingSet, "PivotCommand", jsonMessageInvalidPivotType);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing PIVOT message with mismatching pivot type\n");
+    std::string jsonMessageMismatchPivotType = QUOTE({
+        "PIVOT": {
+            "GTIC": {
+                "SpsTyp": {
+                    "q": {
+                        "Source": "process",
+                        "Validity": "good"
+                    },
+                    "t": {
+                        "FractionOfSecond": 9529458,
+                        "SecondSinceEpoch": 1669714185
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID222222",
+                "TmOrg": {
+                    "stVal": "substituted"
+                }
+            }
+        }
+    });
+    createReadingSet(readingSet, "PivotCommand", jsonMessageMismatchPivotType);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
