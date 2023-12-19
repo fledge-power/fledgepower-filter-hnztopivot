@@ -352,7 +352,8 @@ Datapoint* HNZPivotFilter::convertTCACKToPivot(const std::string& assetName, std
     pivot.setIdentifier(exchangeConfig->getPivotId());
     pivot.setCause(7);
     
-    pivot.addQuality(dataObject.doValid, false, false, false);
+    pivot.addQuality(false, false, false, false);
+    pivot.setConfirmation(dataObject.doValid);
 
     appendTimestamp(pivot, false, 0, false, false);
         
@@ -377,7 +378,8 @@ Datapoint* HNZPivotFilter::convertTVCACKToPivot(const std::string& assetName, st
     pivot.setIdentifier(exchangeConfig->getPivotId());
     pivot.setCause(7);
     
-    pivot.addQuality(dataObject.doValid, false, false, false);
+    pivot.addQuality(false, false, false, false);
+    pivot.setConfirmation(dataObject.doValid);
 
     appendTimestamp(pivot, false, 0, false, false);
         
