@@ -49,13 +49,13 @@ static bool checkPivotTypeMatch(const std::string& incomingType, std::shared_ptr
 static bool checkValueRange(const std::string& beforeLog, long value, long min, long max, const std::string& type)
 {
     if (value < min || value > max) {
-        PivotUtility::log_warn("%s do_value out of range [%ld..%ld] for %s: %ld", beforeLog.c_str(), min, max, type.c_str(), value);
+        HnzPivotUtility::log_warn("%s do_value out of range [%ld..%ld] for %s: %ld", beforeLog.c_str(), min, max, type.c_str(), value);
         return false;
     }
     return true;
 }
 
-static void appendTimestamp(PivotObject& pivot, bool hasDoTs, unsigned long doTs, bool doTsIv, bool doTsS)
+static void appendTimestamp(HnzPivotObject& pivot, bool hasDoTs, unsigned long doTs, bool doTsIv, bool doTsS)
 {
     if (hasDoTs) {
         pivot.addTimestamp(doTs, doTsS);
@@ -64,7 +64,7 @@ static void appendTimestamp(PivotObject& pivot, bool hasDoTs, unsigned long doTs
     }
     // For any message that does not have a timestamp in the protocol, add one artifically
     else {
-        doTs = PivotTimestamp::getCurrentTimestampMs();
+        doTs = HnzPivotTimestamp::getCurrentTimestampMs();
         pivot.addTimestamp(doTs, false);
         pivot.addTmOrg(true);
     }
@@ -163,27 +163,27 @@ Datapoint* HNZPivotFilter::convertDatapointToPivot(const std::string& assetName,
 
     // Get exchangeConfig from message type and address
     if (!attributeFound["do_type"]) {
-        PivotUtility::log_error("%s Missing do_type", beforeLog.c_str());
+        HnzPivotUtility::log_error("%s Missing do_type", beforeLog.c_str());
         return nullptr;
     }
     if (!attributeFound["do_addr"]) {
-        PivotUtility::log_error("%s Missing do_addr", beforeLog.c_str());
+        HnzPivotUtility::log_error("%s Missing do_addr", beforeLog.c_str());
         return nullptr;
     }
     const std::string& pivotId = m_filterConfig->findPivotId(dataObject.doType, dataObject.doAddress);
     if (pivotId.empty()) {
-        PivotUtility::log_error("%s No pivot ID configured for typeid %s and address %u",
+        HnzPivotUtility::log_error("%s No pivot ID configured for typeid %s and address %u",
                                     beforeLog.c_str(), dataObject.doType.c_str(), dataObject.doAddress);
         return nullptr;
     }
     auto exchangeData = m_filterConfig->getExchangeDefinitions();
     if (exchangeData.count(pivotId) == 0) {
-        PivotUtility::log_error("%s Unknown pivot ID: %s", beforeLog.c_str(), pivotId.c_str());
+        HnzPivotUtility::log_error("%s Unknown pivot ID: %s", beforeLog.c_str(), pivotId.c_str());
         return nullptr;
     }
     auto exchangeConfig = exchangeData[pivotId];
     if (!checkLabelMatch(assetName, exchangeConfig)) {
-        PivotUtility::log_warn("%s Input label (%s) does not match configured label (%s) for pivot ID: %s",
+        HnzPivotUtility::log_warn("%s Input label (%s) does not match configured label (%s) for pivot ID: %s",
                                     beforeLog.c_str(), assetName.c_str(), exchangeConfig->getLabel().c_str(), pivotId.c_str());   
     }
 
@@ -204,7 +204,7 @@ Datapoint* HNZPivotFilter::convertDatapointToPivot(const std::string& assetName,
         convertedDatapoint = convertTVCACKToPivot(assetName, attributeFound, dataObject, exchangeConfig);
     }
     else {
-        PivotUtility::log_error("%s Unknown do_type: %s", beforeLog.c_str(), dataObject.doType.c_str());
+        HnzPivotUtility::log_error("%s Unknown do_type: %s", beforeLog.c_str(), dataObject.doType.c_str());
         return nullptr;
     }
 
@@ -218,38 +218,38 @@ Datapoint* HNZPivotFilter::convertTSToPivot(const std::string& assetName, std::m
 
     // Message structure checks
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
-        PivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
+        HnzPivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
                                     beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
     }
     if (!attributeFound["do_valid"]) {
-        PivotUtility::log_warn("%s Missing attribute do_valid in TS", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_valid in TS", beforeLog.c_str());
     }
     if (!attributeFound["do_cg"]) {
-        PivotUtility::log_warn("%s Missing attribute do_cg in TS", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_cg in TS", beforeLog.c_str());
     }
     else if (!dataObject.doCg) {
         if (!attributeFound["do_ts"]) {
-            PivotUtility::log_warn("%s Missing attribute do_ts in TS CE", beforeLog.c_str());
+            HnzPivotUtility::log_warn("%s Missing attribute do_ts in TS CE", beforeLog.c_str());
         }
         if (!attributeFound["do_ts_iv"]) {
-            PivotUtility::log_warn("%s Missing attribute do_ts_iv in TS CE", beforeLog.c_str());
+            HnzPivotUtility::log_warn("%s Missing attribute do_ts_iv in TS CE", beforeLog.c_str());
         }
         if (!attributeFound["do_ts_c"]) {
-            PivotUtility::log_warn("%s Missing attribute do_ts_c in TS CE", beforeLog.c_str());
+            HnzPivotUtility::log_warn("%s Missing attribute do_ts_c in TS CE", beforeLog.c_str());
         }
         if (!attributeFound["do_ts_s"]) {
-            PivotUtility::log_warn("%s Missing attribute do_ts_s in TS CE", beforeLog.c_str());
+            HnzPivotUtility::log_warn("%s Missing attribute do_ts_s in TS CE", beforeLog.c_str());
         }
     }
     if (!attributeFound["do_outdated"]) {
-        PivotUtility::log_warn("%s Missing attribute do_outdated in TS", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_outdated in TS", beforeLog.c_str());
     }
     else if (!dataObject.doOutdated && !attributeFound["do_value"]) {
-        PivotUtility::log_warn("%s Missing attribute do_value in TS", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_value in TS", beforeLog.c_str());
     }
     // Pivot conversion
     const std::string& pivotType = exchangeConfig->getPivotType();
-    PivotObject pivot("GTIS", pivotType);
+    HnzPivotObject pivot("GTIS", pivotType);
     pivot.setIdentifier(exchangeConfig->getPivotId());
     pivot.setCause(dataObject.doCg ? 20 : 3);
     
@@ -285,23 +285,23 @@ Datapoint* HNZPivotFilter::convertTMToPivot(const std::string& assetName, std::m
 
     // Message structure checks
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
-        PivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
+        HnzPivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
                                     beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
     }
     if (!attributeFound["do_valid"]) {
-        PivotUtility::log_warn("%s Missing attribute do_valid in TM", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_valid in TM", beforeLog.c_str());
     }
     if (!attributeFound["do_an"]) {
-        PivotUtility::log_warn("%s Missing attribute do_an in TM", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_an in TM", beforeLog.c_str());
     }
     if (!attributeFound["do_outdated"]) {
-        PivotUtility::log_warn("%s Missing attribute do_outdated in TM", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_outdated in TM", beforeLog.c_str());
     }
     else if (!dataObject.doOutdated && !attributeFound["do_value"]) {
-        PivotUtility::log_warn("%s Missing attribute do_value in TM", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_value in TM", beforeLog.c_str());
     }
     // Pivot conversion
-    PivotObject pivot("GTIM", exchangeConfig->getPivotType());
+    HnzPivotObject pivot("GTIM", exchangeConfig->getPivotType());
     pivot.setIdentifier(exchangeConfig->getPivotId());
     pivot.setCause(1);
     
@@ -319,7 +319,7 @@ Datapoint* HNZPivotFilter::convertTMToPivot(const std::string& assetName, std::m
                 checkValueRange(beforeLog, value, -32768, 32767, dataObject.doAn);
             }
             else {
-                PivotUtility::log_warn("%s Unknown do_an: %s", beforeLog.c_str(), dataObject.doAn.c_str());
+                HnzPivotUtility::log_warn("%s Unknown do_an: %s", beforeLog.c_str(), dataObject.doAn.c_str());
             }
         }
         pivot.setMagI(static_cast<int>(value));
@@ -340,15 +340,15 @@ Datapoint* HNZPivotFilter::convertTCACKToPivot(const std::string& assetName, std
     // Message structure checks
     const std::string& pivotType = exchangeConfig->getPivotType();
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
-        PivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
+        HnzPivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
                                     beforeLog.c_str(), pivotType.c_str(), dataObject.doType.c_str());
     }
     if (!attributeFound["do_valid"]) {
-        PivotUtility::log_warn("%s Missing attribute do_valid in TC ACK", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_valid in TC ACK", beforeLog.c_str());
     }
     // Pivot conversion
     
-    PivotObject pivot("GTIC", pivotType);
+    HnzPivotObject pivot("GTIC", pivotType);
     pivot.setIdentifier(exchangeConfig->getPivotId());
     pivot.setCause(7);
     
@@ -367,14 +367,14 @@ Datapoint* HNZPivotFilter::convertTVCACKToPivot(const std::string& assetName, st
 
     // Message structure checks
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
-        PivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
+        HnzPivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
                                     beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
     }
     if (!attributeFound["do_valid"]) {
-        PivotUtility::log_warn("%s Missing attribute do_valid in TVC ACK", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s Missing attribute do_valid in TVC ACK", beforeLog.c_str());
     }
     // Pivot conversion
-    PivotObject pivot("GTIC", exchangeConfig->getPivotType());
+    HnzPivotObject pivot("GTIC", exchangeConfig->getPivotType());
     pivot.setIdentifier(exchangeConfig->getPivotId());
     pivot.setCause(7);
     
@@ -392,7 +392,7 @@ std::vector<Datapoint*> HNZPivotFilter::convertDatapointToHNZ(const std::string&
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - " + assetName + " - HNZPivotFilter::convertDatapointToHNZ -";
 
     try {
-        PivotObject pivotObject(sourceDp);
+        HnzPivotObject pivotObject(sourceDp);
         auto exchangeData = m_filterConfig->getExchangeDefinitions();
         const std::string& pivotId = pivotObject.getIdentifier();
         if (exchangeData.count(pivotId) == 0) {
@@ -400,16 +400,16 @@ std::vector<Datapoint*> HNZPivotFilter::convertDatapointToHNZ(const std::string&
             for(auto const& kvp: exchangeData) {
                 pivotIds.push_back(kvp.first);
             }
-            PivotUtility::log_error("%s Unknown pivot ID: %s (available: %s)",
-                                        beforeLog.c_str(), pivotId.c_str(), PivotUtility::join(pivotIds).c_str());
+            HnzPivotUtility::log_error("%s Unknown pivot ID: %s (available: %s)",
+                                        beforeLog.c_str(), pivotId.c_str(), HnzPivotUtility::join(pivotIds).c_str());
             return convertedDatapoints;
         }
         auto exchangeConfig = exchangeData[pivotId];
         convertedDatapoints = pivotObject.toHnzCommandObject(exchangeConfig);
     }
-    catch (PivotObjectException& e)
+    catch (HnzPivotObjectException& e)
     {
-        PivotUtility::log_error("%s Failed to convert pivot object: %s", beforeLog.c_str(), e.getContext().c_str());
+        HnzPivotUtility::log_error("%s Failed to convert pivot object: %s", beforeLog.c_str(), e.getContext().c_str());
     }
 
     return convertedDatapoints;
@@ -424,7 +424,7 @@ bool HNZPivotFilter::convertDatapoint(const std::string& assetName, Datapoint* d
             convertedDatapoints.push_back(convertedDp);
         }
         else {
-            PivotUtility::log_error("%s Failed to convert data_object", beforeLog.c_str());
+            HnzPivotUtility::log_error("%s Failed to convert data_object", beforeLog.c_str());
             return false;
         }
     }
@@ -435,12 +435,12 @@ bool HNZPivotFilter::convertDatapoint(const std::string& assetName, Datapoint* d
             convertedDatapoints.insert(convertedDatapoints.end(), convertedDps.begin(), convertedDps.end());
         }
         else {
-            PivotUtility::log_error("%s Failed to convert PIVOT object", beforeLog.c_str());
+            HnzPivotUtility::log_error("%s Failed to convert PIVOT object", beforeLog.c_str());
             return false;
         }
     }
     else {
-        PivotUtility::log_debug("%s Unhandled datapoint type '%s', forwarding reading unchanged",
+        HnzPivotUtility::log_debug("%s Unhandled datapoint type '%s', forwarding reading unchanged",
                                         beforeLog.c_str(), dp->getName().c_str());
         convertedDatapoints.push_back(new Datapoint(dp->getName(), dp->getData()));
         return false;
@@ -456,13 +456,13 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
         return;
     }
     if (!readingSet) {
-        PivotUtility::log_error("%s No reading set provided", beforeLog.c_str());
+        HnzPivotUtility::log_error("%s No reading set provided", beforeLog.c_str());
         return;
     }
     /* apply transformation */
     std::vector<Reading*>* readings = readingSet->getAllReadingsPtr();
 
-    PivotUtility::log_info("%s %d readings", beforeLog.c_str(), readings->size());
+    HnzPivotUtility::log_info("%s %d readings", beforeLog.c_str(), readings->size());
 
     auto readIt = readings->begin();
 
@@ -477,7 +477,7 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
 
         std::vector<Datapoint*> convertedDatapoints;
 
-        PivotUtility::log_debug("%s original Reading: %s", beforeLog.c_str(), reading->toJSON().c_str());
+        HnzPivotUtility::log_debug("%s original Reading: %s", beforeLog.c_str(), reading->toJSON().c_str());
 
         bool success = true;
         for (Datapoint* dp : datapoints) {
@@ -496,7 +496,7 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
             reading->addDatapoint(convertedDatapoint);
         }
 
-        PivotUtility::log_debug("%s converted Reading: %s", beforeLog.c_str(), reading->toJSON().c_str());
+        HnzPivotUtility::log_debug("%s converted Reading: %s", beforeLog.c_str(), reading->toJSON().c_str());
 
         if (reading->getReadingData().empty()) {
             readIt = readings->erase(readIt);
@@ -509,12 +509,12 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
     if (!readings->empty())
     {
         if (m_func) {
-            PivotUtility::log_debug("%s Send %lu converted readings", beforeLog.c_str(), readings->size());
+            HnzPivotUtility::log_debug("%s Send %lu converted readings", beforeLog.c_str(), readings->size());
 
             m_func(m_data, readingSet);
         }
         else {
-            PivotUtility::log_error("%s No function to call, discard %lu converted readings", beforeLog.c_str(), readings->size());
+            HnzPivotUtility::log_error("%s No function to call, discard %lu converted readings", beforeLog.c_str(), readings->size());
         }
     }
 }
@@ -522,7 +522,7 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
 void HNZPivotFilter::reconfigure(const std::string& newConfig) {
     std::lock_guard<std::recursive_mutex> guard(m_configMutex);
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - HNZPivotFilter::reconfigure -";
-    PivotUtility::log_debug("%s reconfigure called", beforeLog.c_str());
+    HnzPivotUtility::log_debug("%s reconfigure called", beforeLog.c_str());
     setConfig(newConfig);
 
     ConfigCategory config("hnzpivot", newConfig);
@@ -537,6 +537,6 @@ void HNZPivotFilter::readConfig(const ConfigCategory& config) {
         m_filterConfig->importExchangeConfig(exchangedData);
     }
     else {
-        PivotUtility::log_error("%s Missing exchanged_data configuation", beforeLog.c_str());
+        HnzPivotUtility::log_error("%s Missing exchanged_data configuation", beforeLog.c_str());
     }
 }

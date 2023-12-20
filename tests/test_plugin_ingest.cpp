@@ -257,7 +257,7 @@ template <typename T>
 static T callOnLastPathElement(Datapoint& dp, const std::string& childPath, std::function<T(Datapoint&, const std::string&)> func) {
     if (childPath.find(".") != std::string::npos) {
         // Check if the first element in the path is a child of current datapoint
-        std::vector<std::string> splittedPath = PivotUtility::split(childPath, '.');
+        std::vector<std::string> splittedPath = HnzPivotUtility::split(childPath, '.');
         const std::string& topNode(splittedPath[0]);
         Datapoint* child = getChild(dp, topNode);
         if (child == nullptr) {
@@ -265,7 +265,7 @@ static T callOnLastPathElement(Datapoint& dp, const std::string& childPath, std:
         }
         // If it is, call recursively this function on the datapoint found with the rest of the path
         splittedPath.erase(splittedPath.begin());
-        const std::string& remainingPath(PivotUtility::join(splittedPath, "."));
+        const std::string& remainingPath(HnzPivotUtility::join(splittedPath, "."));
         return callOnLastPathElement(*child, remainingPath, func);
     }
     else {
@@ -378,7 +378,7 @@ static void validateReading(std::shared_ptr<Reading> currentReading, const std::
             ASSERT_EQ(std::stoll(expectedValue), getIntValue(*callOnLastPathElement(*data_object, name, getChildFn))) << assetName << ": Unexpected value for attribute " << name;
         }
         else if (type == std::string("int64_t_range")) {
-            auto splitted = PivotUtility::split(expectedValue, ';');
+            auto splitted = HnzPivotUtility::split(expectedValue, ';');
             ASSERT_EQ(splitted.size(), 2);
             const std::string& expectedRangeMin = splitted.front();
             const std::string& expectedRangeMax = splitted.back();
@@ -584,7 +584,7 @@ TEST_F(PivotHNZPluginIngest, TSCEToPivot)
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(1685019425432);
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(1685019425432);
     validateReading(lastReading, "TS1", "PIVOT", allPivotAttributeNames, {
         {"GTIS.ComingFrom", {"string", "hnzip"}},
         {"GTIS.Identifier", {"string", "ID114561"}},
@@ -617,7 +617,7 @@ TEST_F(PivotHNZPluginIngest, TSCGToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -659,7 +659,7 @@ TEST_F(PivotHNZPluginIngest, TSToPivotDouble)
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(1685019425432);
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(1685019425432);
     validateReading(lastReading, "TS2", "PIVOT", allPivotAttributeNames, {
         {"GTIS.ComingFrom", {"string", "hnzip"}},
         {"GTIS.Identifier", {"string", "ID114562"}},
@@ -699,7 +699,7 @@ TEST_F(PivotHNZPluginIngest, TSQualityToPivot)
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(1685019425432);
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(1685019425432);
     validateReading(lastReading, "TS3", "PIVOT", allPivotAttributeNames, {
         {"GTIS.ComingFrom", {"string", "hnzip"}},
         {"GTIS.Identifier", {"string", "ID114567"}},
@@ -933,7 +933,7 @@ TEST_F(PivotHNZPluginIngest, TSQualityToPivot)
     ASSERT_NE(readingSet, nullptr);
 
     outputHandlerCalled = 0;
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -967,7 +967,7 @@ TEST_F(PivotHNZPluginIngest, TSQualityToPivot)
     ASSERT_NE(readingSet, nullptr);
 
     outputHandlerCalled = 0;
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1002,7 +1002,7 @@ TEST_F(PivotHNZPluginIngest, TSQualityToPivot)
     ASSERT_NE(readingSet, nullptr);
 
     outputHandlerCalled = 0;
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1039,7 +1039,7 @@ TEST_F(PivotHNZPluginIngest, TMAToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1075,7 +1075,7 @@ TEST_F(PivotHNZPluginIngest, TM8ToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1111,7 +1111,7 @@ TEST_F(PivotHNZPluginIngest, TM16ToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1148,7 +1148,7 @@ TEST_F(PivotHNZPluginIngest, TMQualityToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1181,7 +1181,7 @@ TEST_F(PivotHNZPluginIngest, TMQualityToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1216,7 +1216,7 @@ TEST_F(PivotHNZPluginIngest, TMQualityToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1250,7 +1250,7 @@ TEST_F(PivotHNZPluginIngest, TMQualityToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1284,7 +1284,7 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1317,7 +1317,7 @@ TEST_F(PivotHNZPluginIngest, TCNAckToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1350,7 +1350,7 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivotDouble)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1383,7 +1383,7 @@ TEST_F(PivotHNZPluginIngest, TCNAckToPivotDouble)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1417,7 +1417,7 @@ TEST_F(PivotHNZPluginIngest, TVCAckToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1451,7 +1451,7 @@ TEST_F(PivotHNZPluginIngest, TVCNAckToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1860,7 +1860,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1889,7 +1889,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1918,7 +1918,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1951,7 +1951,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1980,7 +1980,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -2013,7 +2013,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -2047,7 +2047,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -2081,7 +2081,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -2115,7 +2115,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -2144,7 +2144,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -2173,7 +2173,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));

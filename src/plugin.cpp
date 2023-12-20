@@ -126,10 +126,10 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
                           OUTPUT_STREAM output)
 {
     std::string beforeLog = HNZPivotConfig::getPluginName() + " -";
-    PivotUtility::log_info("%s Initializing filter", beforeLog.c_str());
+    HnzPivotUtility::log_info("%s Initializing filter", beforeLog.c_str());
 
     if (config == nullptr) {
-        PivotUtility::log_warn("%s No config provided for filter, using default config", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s No config provided for filter, using default config", beforeLog.c_str());
         auto info = plugin_info();
 	    config = new ConfigCategory("hnztopivot", info->config);
         config->setItemsValueFromDefault();

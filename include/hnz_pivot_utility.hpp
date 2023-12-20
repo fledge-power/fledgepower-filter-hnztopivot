@@ -16,7 +16,7 @@
 #include <vector>
 #include <logger.h>
 
-namespace PivotUtility {
+namespace HnzPivotUtility {
     /**
      * Join a list of strings into a single string with the given separator
      * @param list : List of strings to join
