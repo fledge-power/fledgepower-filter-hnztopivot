@@ -12,7 +12,7 @@
 #include <sstream>
 #include "hnz_pivot_utility.hpp"
 
-std::string PivotUtility::join(const std::vector<std::string> &list, const std::string &sep /*= ", "*/)
+std::string HnzPivotUtility::join(const std::vector<std::string> &list, const std::string &sep /*= ", "*/)
 {
     std::string ret;
     for(const auto &str : list) {
@@ -24,7 +24,7 @@ std::string PivotUtility::join(const std::vector<std::string> &list, const std::
     return ret;
 }
 
-std::vector<std::string> PivotUtility::split(const std::string& str, char sep) {
+std::vector<std::string> HnzPivotUtility::split(const std::string& str, char sep) {
     std::stringstream ss(str);
     std::string item;
     std::vector<std::string> elems;

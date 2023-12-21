@@ -98,7 +98,7 @@ static std::string getValueStr(Datapoint* dp)
         return dpv.toStringValue();
     }
     else {
-        throw PivotObjectException("datapoint " + dp->getName() + " has not a string value");
+        throw HnzPivotObjectException("datapoint " + dp->getName() + " has not a string value");
     }
 }
 
@@ -110,7 +110,7 @@ static std::string getChildValueStr(Datapoint* dp, const std::string& name)
         return getValueStr(childDp);
     }
     else {
-        throw PivotObjectException("No such child: " + name);
+        throw HnzPivotObjectException("No such child: " + name);
     }
 }
 
@@ -122,7 +122,7 @@ static long getValueLong(Datapoint* dp)
         return dpv.toInt();
     }
     else {
-        throw PivotObjectException("datapoint " + dp->getName() + " has not an int value");
+        throw HnzPivotObjectException("datapoint " + dp->getName() + " has not an int value");
     }
 }
 
@@ -134,7 +134,7 @@ static long getChildValueLong(Datapoint* dp, const std::string& name)
         return getValueLong(childDp);
     }
     else {
-        throw PivotObjectException("No such child: " + name);
+        throw HnzPivotObjectException("No such child: " + name);
     }
 }
 
@@ -148,7 +148,7 @@ static int getChildValueInt(Datapoint* dp, const std::string& name)
     return static_cast<int>(getChildValueLong(dp, name));
 }
 
-void PivotTimestamp::handleTimeQuality(Datapoint* timeQuality)
+void HnzPivotTimestamp::handleTimeQuality(Datapoint* timeQuality)
 {
     DatapointValue& dpv = timeQuality->getData();
     if (dpv.getType() != DatapointValue::T_DP_DICT) {
@@ -181,7 +181,7 @@ void PivotTimestamp::handleTimeQuality(Datapoint* timeQuality)
     }
 }
 
-PivotTimestamp::PivotTimestamp(Datapoint* timestampData)
+HnzPivotTimestamp::HnzPivotTimestamp(Datapoint* timestampData)
 {
     DatapointValue& dpv = timestampData->getData();
     if (dpv.getType() != DatapointValue::T_DP_DICT) {
@@ -204,59 +204,59 @@ PivotTimestamp::PivotTimestamp(Datapoint* timestampData)
     }
 }
 
-long PivotTimestamp::toTimestamp(long secondSinceEpoch, long fractionOfSecond) {
+long HnzPivotTimestamp::toTimestamp(long secondSinceEpoch, long fractionOfSecond) {
     long timestamp = 0;
     auto msPart = static_cast<long>(round(static_cast<double>(fractionOfSecond * 1000) / 16777216.0));
     timestamp = (secondSinceEpoch * 1000L) + msPart;
     return timestamp;
 }
 
-std::pair<long, long> PivotTimestamp::fromTimestamp(long timestamp) {
+std::pair<long, long> HnzPivotTimestamp::fromTimestamp(long timestamp) {
     long remainder = (timestamp % 1000L);
     long fractionOfSecond = remainder * 16777 + ((remainder * 216) / 1000);
     return std::make_pair(timestamp / 1000L, fractionOfSecond);
 }
 
-uint64_t PivotTimestamp::getCurrentTimestampMs()
+uint64_t HnzPivotTimestamp::getCurrentTimestampMs()
 {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-Datapoint* PivotObject::getCdc(Datapoint* dp)
+Datapoint* HnzPivotObject::getCdc(Datapoint* dp)
 {
     Datapoint* cdcDp = nullptr;
     std::vector<std::string> unknownChildrenNames;
 
     DatapointValue& dpv = dp->getData();
     if (dpv.getType() != DatapointValue::T_DP_DICT) {
-        throw PivotObjectException("CDC type missing");
+        throw HnzPivotObjectException("CDC type missing");
     }
 
     const std::vector<Datapoint*>* datapoints = dpv.getDpVec();
     for (Datapoint* child : *datapoints) {
         if (child->getName() == "SpsTyp") {
             cdcDp = child;
-            m_pivotCdc = PivotCdc::SPS;
+            m_pivotCdc = HnzPivotCdc::SPS;
         }
         else if (child->getName() == "MvTyp") {
             cdcDp = child;
-            m_pivotCdc = PivotCdc::MV;
+            m_pivotCdc = HnzPivotCdc::MV;
         }
         else if (child->getName() == "DpsTyp") {
             cdcDp = child;
-            m_pivotCdc = PivotCdc::DPS;
+            m_pivotCdc = HnzPivotCdc::DPS;
         }
         else if (child->getName() == "SpcTyp") {
             cdcDp = child;
-            m_pivotCdc = PivotCdc::SPC;
+            m_pivotCdc = HnzPivotCdc::SPC;
         }
         else if (child->getName() == "DpcTyp") {
             cdcDp = child;
-            m_pivotCdc = PivotCdc::DPC;
+            m_pivotCdc = HnzPivotCdc::DPC;
         }
         else if (child->getName() == "IncTyp") {
             cdcDp = child;
-            m_pivotCdc = PivotCdc::INC;
+            m_pivotCdc = HnzPivotCdc::INC;
         }
         else {
             unknownChildrenNames.push_back(child->getName());
@@ -265,14 +265,19 @@ Datapoint* PivotObject::getCdc(Datapoint* dp)
             break;
         }
     }
+
     if(cdcDp == nullptr) {
-        throw PivotObjectException("CDC type unknown: " + PivotUtility::join(unknownChildrenNames));
+        throw HnzPivotObjectException("CDC type unknown: " + HnzPivotUtility::join(unknownChildrenNames));
+    }
+    if(!checkCdcTypeMatch(m_pivotCdc, m_pivotClass)) {
+        throw HnzPivotObjectException("CDC type (" + HnzPivotCdcStr(m_pivotCdc) + ") does not match pivot class ("
+                                    + HnzPivotClassStr(m_pivotClass) + ")");
     }
     
     return cdcDp;
 }
 
-bool PivotObject::readBool(Datapoint* dp, const std::string& name, bool& out) const
+bool HnzPivotObject::readBool(Datapoint* dp, const std::string& name, bool& out) const
 {
     if (dp->getName() == name) {
         if (getValueInt(dp) > 0)
@@ -284,7 +289,7 @@ bool PivotObject::readBool(Datapoint* dp, const std::string& name, bool& out) co
     return false;
 }
 
-void PivotObject::handleDetailQuality(Datapoint* detailQuality)
+void HnzPivotObject::handleDetailQuality(Datapoint* detailQuality)
 {
     DatapointValue& dpv = detailQuality->getData();
     if (dpv.getType() != DatapointValue::T_DP_DICT) {
@@ -304,7 +309,7 @@ void PivotObject::handleDetailQuality(Datapoint* detailQuality)
     }
 }
 
-void PivotObject::handleQuality(Datapoint* q)
+void HnzPivotObject::handleQuality(Datapoint* q)
 {
     DatapointValue& dpv = q->getData();
     if (dpv.getType() != DatapointValue::T_DP_DICT) {
@@ -320,16 +325,16 @@ void PivotObject::handleQuality(Datapoint* q)
             }
 
             if (validityStr == "invalid") {
-                m_validity = Validity::INVALID;
+                m_validity = HnzValidity::INVALID;
             }
             else if (validityStr == "questionable") {
-                m_validity = Validity::QUESTIONABLE;
+                m_validity = HnzValidity::QUESTIONABLE;
             }
             else if (validityStr == "reserved") {
-                m_validity = Validity::RESERVED;
+                m_validity = HnzValidity::RESERVED;
             }
             else {
-                throw PivotObjectException("Validity has invalid value: " + validityStr);
+                throw HnzPivotObjectException("Validity has invalid value: " + validityStr);
             }
         }
         else if (child->getName() == "Source") {
@@ -339,10 +344,10 @@ void PivotObject::handleQuality(Datapoint* q)
             }
 
             if (sourceStr == "substituted") {
-                m_source = Source::SUBSTITUTED;
+                m_source = HnzSource::SUBSTITUTED;
             }
             else {
-                throw PivotObjectException("Source has invalid value: " + sourceStr);
+                throw HnzPivotObjectException("Source has invalid value: " + sourceStr);
             }
         }
         else if (child->getName() == "DetailQuality") {
@@ -357,9 +362,9 @@ void PivotObject::handleQuality(Datapoint* q)
     }
 }
 
-void PivotObject::handleCdc(Datapoint* cdc) {
+void HnzPivotObject::handleCdc(Datapoint* cdc) {
     if (cdc == nullptr) {
-        throw PivotObjectException("CDC element not found");
+        throw HnzPivotObjectException("CDC element not found");
     }
     
     Datapoint* q = getChild(cdc, "q");
@@ -371,19 +376,19 @@ void PivotObject::handleCdc(Datapoint* cdc) {
     Datapoint* t = getChild(cdc, "t");
 
     if (t) {
-        m_timestamp = std::make_shared<PivotTimestamp>(t);
+        m_timestamp = std::make_shared<HnzPivotTimestamp>(t);
     }
 
-    if (m_pivotCdc == PivotCdc::SPS) {
-        throw PivotObjectException("Pivot to HNZ not implemented for type SpsTyp");
+    if (m_pivotCdc == HnzPivotCdc::SPS) {
+        throw HnzPivotObjectException("Pivot to HNZ not implemented for type SpsTyp");
     }
-    else if (m_pivotCdc == PivotCdc::DPS) {
-        throw PivotObjectException("Pivot to HNZ not implemented for type DpsTyp");
+    else if (m_pivotCdc == HnzPivotCdc::DPS) {
+        throw HnzPivotObjectException("Pivot to HNZ not implemented for type DpsTyp");
     }
-    else if (m_pivotCdc == PivotCdc::MV) {
-        throw PivotObjectException("Pivot to HNZ not implemented for type MvTyp");
+    else if (m_pivotCdc == HnzPivotCdc::MV) {
+        throw HnzPivotObjectException("Pivot to HNZ not implemented for type MvTyp");
     }
-    else if (m_pivotCdc == PivotCdc::SPC) {
+    else if (m_pivotCdc == HnzPivotCdc::SPC) {
         Datapoint* ctlVal = getChild(cdc, "ctlVal");
 
         if (ctlVal) {
@@ -397,7 +402,7 @@ void PivotObject::handleCdc(Datapoint* cdc) {
             }
         }
     }
-    else if (m_pivotCdc == PivotCdc::DPC) {
+    else if (m_pivotCdc == HnzPivotCdc::DPC) {
         Datapoint* ctlVal = getChild(cdc, "ctlVal");
 
         if (ctlVal) {
@@ -411,11 +416,11 @@ void PivotObject::handleCdc(Datapoint* cdc) {
                 intVal = 1;
             }
             else {
-                throw PivotObjectException("invalid DpcTyp value : " + ctlValStr);
+                throw HnzPivotObjectException("invalid DpcTyp value : " + ctlValStr);
             }
         }
     }
-    else if (m_pivotCdc == PivotCdc::INC) {
+    else if (m_pivotCdc == HnzPivotCdc::INC) {
         Datapoint* ctlVal = getChild(cdc, "ctlVal");
 
         if (ctlVal) {
@@ -424,7 +429,7 @@ void PivotObject::handleCdc(Datapoint* cdc) {
     }
 }
 
-void PivotObject::handleGTIX() {
+void HnzPivotObject::handleGTIX() {
     m_identifier = getChildValueStr(m_ln, "Identifier");
 
     if (getChild(m_ln, "ComingFrom")) {
@@ -437,7 +442,7 @@ void PivotObject::handleGTIX() {
         m_cause = getChildValueInt(cause, "stVal");
     }
 
-    Datapoint* confirmation = getChild(m_ln, "Cause");
+    Datapoint* confirmation = getChild(m_ln, "Confirmation");
 
     if (confirmation) {
         int confirmationVal = getChildValueInt(confirmation, "stVal");
@@ -477,9 +482,9 @@ void PivotObject::handleGTIX() {
     handleCdc(cdc);
 }
 
-PivotObject::PivotObject(Datapoint* pivotData) {
+HnzPivotObject::HnzPivotObject(Datapoint* pivotData) {
     if (pivotData->getName() != "PIVOT") {
-        throw PivotObjectException("No pivot object");
+        throw HnzPivotObjectException("No pivot object");
     }
 
     m_dp = pivotData;
@@ -488,21 +493,21 @@ PivotObject::PivotObject(Datapoint* pivotData) {
 
     DatapointValue& dpv = pivotData->getData();
     if (dpv.getType() != DatapointValue::T_DP_DICT) {
-        throw PivotObjectException("pivot object not found");
+        throw HnzPivotObjectException("pivot object not found");
     }
 
     const std::vector<Datapoint*>* datapoints = dpv.getDpVec();
     for (Datapoint* child : *datapoints) {
         if (child->getName() == "GTIS") {
-            m_pivotClass = PivotClass::GTIS;
+            m_pivotClass = HnzPivotClass::GTIS;
             m_ln = child;
         }
         else if (child->getName() == "GTIM") {
-            m_pivotClass = PivotClass::GTIM;
+            m_pivotClass = HnzPivotClass::GTIM;
             m_ln = child;
         }
         else if (child->getName() == "GTIC") {
-            m_pivotClass = PivotClass::GTIC;
+            m_pivotClass = HnzPivotClass::GTIC;
             m_ln = child;
         }
         else {
@@ -515,13 +520,13 @@ PivotObject::PivotObject(Datapoint* pivotData) {
     }
 
     if (m_ln == nullptr) {
-        throw PivotObjectException("pivot object type not supported: " + PivotUtility::join(unknownChildrenNames));
+        throw HnzPivotObjectException("pivot object type not supported: " + HnzPivotUtility::join(unknownChildrenNames));
     }
 
     handleGTIX();
 }
 
-PivotObject::PivotObject(const std::string& pivotLN, const std::string& valueType)
+HnzPivotObject::HnzPivotObject(const std::string& pivotLN, const std::string& valueType)
 {
     m_dp = createDp("PIVOT");
 
@@ -532,43 +537,43 @@ PivotObject::PivotObject(const std::string& pivotLN, const std::string& valueTyp
     m_cdc = addElement(m_ln, valueType);
 }
 
-void PivotObject::setIdentifier(const std::string& identifier)
+void HnzPivotObject::setIdentifier(const std::string& identifier)
 {
     addElementWithValue(m_ln, "Identifier", identifier);
 }
 
-void PivotObject::setCause(int cause)
+void HnzPivotObject::setCause(int cause)
 {
     Datapoint* causeDp = addElement(m_ln, "Cause");
 
     addElementWithValue(causeDp, "stVal", static_cast<long>(cause));
 }
 
-void PivotObject::setStVal(bool value)
+void HnzPivotObject::setStVal(bool value)
 {
     addElementWithValue(m_cdc, "stVal", static_cast<long>(value ? 1 : 0));
 }
 
-void PivotObject::setStValStr(const std::string& value)
+void HnzPivotObject::setStValStr(const std::string& value)
 {
     addElementWithValue(m_cdc, "stVal", value);
 }
 
-void PivotObject::setMagF(float value)
+void HnzPivotObject::setMagF(float value)
 {
     Datapoint* mag = addElement(m_cdc, "mag");
 
     addElementWithValue(mag, "f", value);
 }
 
-void PivotObject::setMagI(int value)
+void HnzPivotObject::setMagI(int value)
 {
     Datapoint* mag = addElement(m_cdc, "mag");
 
     addElementWithValue(mag, "i", static_cast<long>(value));
 }
 
-void PivotObject::setConfirmation(bool value)
+void HnzPivotObject::setConfirmation(bool value)
 {
     Datapoint* confirmation = addElement(m_ln, "Confirmation");
 
@@ -577,7 +582,7 @@ void PivotObject::setConfirmation(bool value)
     }
 }
 
-void PivotObject::addQuality(unsigned int doValid, bool doOutdated, bool doTsC, bool doTsS)
+void HnzPivotObject::addQuality(unsigned int doValid, bool doOutdated, bool doTsC, bool doTsS)
 {
     Datapoint* q = addElement(m_cdc, "q");
     // doValid of 1 means "invalid"
@@ -598,7 +603,7 @@ void PivotObject::addQuality(unsigned int doValid, bool doOutdated, bool doTsC, 
     }
 }
 
-void PivotObject::addTmOrg(bool substituted)
+void HnzPivotObject::addTmOrg(bool substituted)
 {
     Datapoint* tmOrg = addElement(m_ln, "TmOrg");
 
@@ -608,7 +613,7 @@ void PivotObject::addTmOrg(bool substituted)
         addElementWithValue(tmOrg, "stVal", "genuine");
 }
 
-void PivotObject::addTmValidity(bool invalid)
+void HnzPivotObject::addTmValidity(bool invalid)
 {
     Datapoint* tmValidity = addElement(m_ln, "TmValidity");
 
@@ -618,11 +623,11 @@ void PivotObject::addTmValidity(bool invalid)
         addElementWithValue(tmValidity, "stVal", "good");
 }
 
-void PivotObject::addTimestamp(unsigned long doTs, bool doTsS)
+void HnzPivotObject::addTimestamp(unsigned long doTs, bool doTsS)
 {
     Datapoint* t = addElement(m_cdc, "t");
 
-    auto timePair = PivotTimestamp::fromTimestamp(static_cast<long>(doTs));
+    auto timePair = HnzPivotTimestamp::fromTimestamp(static_cast<long>(doTs));
     addElementWithValue(t, "SecondSinceEpoch", timePair.first);
     addElementWithValue(t, "FractionOfSecond", timePair.second);
 
@@ -632,7 +637,7 @@ void PivotObject::addTimestamp(unsigned long doTs, bool doTsS)
     }
 }
 
-std::vector<Datapoint*> PivotObject::toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const
+std::vector<Datapoint*> HnzPivotObject::toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const
 {
     std::vector<Datapoint*> commandObject;
 
@@ -646,4 +651,46 @@ std::vector<Datapoint*> PivotObject::toHnzCommandObject(std::shared_ptr<HNZPivot
     commandObject.push_back(value);
 
     return commandObject;
+}
+
+bool HnzPivotObject::checkCdcTypeMatch(HnzPivotCdc pivotCdc, HnzPivotClass pivotClass) {
+    switch (pivotClass) {
+        case HnzPivotClass::GTIS:
+            return pivotCdc == HnzPivotCdc::SPS || pivotCdc == HnzPivotCdc::DPS;
+        case HnzPivotClass::GTIM:
+            return pivotCdc == HnzPivotCdc::MV;
+        case HnzPivotClass::GTIC:
+            return pivotCdc == HnzPivotCdc::SPC || pivotCdc == HnzPivotCdc::DPC || pivotCdc == HnzPivotCdc::INC;
+    }
+    return false;
+}
+
+std::string HnzPivotObject::HnzPivotCdcStr(HnzPivotCdc pivotCdc) {
+    switch (pivotCdc) {
+        case HnzPivotCdc::SPS:
+            return "SpsTyp";
+        case HnzPivotCdc::DPS:
+            return "DpsTyp";
+        case HnzPivotCdc::MV:
+            return "MvTyp";
+        case HnzPivotCdc::SPC:
+            return "SpcTyp";
+        case HnzPivotCdc::DPC:
+            return "DpcTyp";
+        case HnzPivotCdc::INC:
+            return "IncTyp";
+    }
+    return "";
+}
+
+std::string HnzPivotObject::HnzPivotClassStr(HnzPivotClass pivotClass) {
+    switch (pivotClass) {
+        case HnzPivotClass::GTIS:
+            return "GTIS";
+        case HnzPivotClass::GTIM:
+            return "GTIM";
+        case HnzPivotClass::GTIC:
+            return "GTIC";
+    }
+    return "";
 }

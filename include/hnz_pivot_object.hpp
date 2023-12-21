@@ -18,10 +18,10 @@
 class Datapoint;
 class HNZPivotDataPoint;
 
-class PivotObjectException : public std::exception //NOSONAR
+class HnzPivotObjectException : public std::exception //NOSONAR
 {     
  public:
-    explicit PivotObjectException(const std::string& context):
+    explicit HnzPivotObjectException(const std::string& context):
         m_context(context) {}
 
     const std::string& getContext(void) const {return m_context;}
@@ -30,12 +30,12 @@ class PivotObjectException : public std::exception //NOSONAR
     const std::string m_context;
 };
 
-class PivotTimestamp
+class HnzPivotTimestamp
 {
 public:
-    explicit PivotTimestamp(Datapoint* timestampData);
-    PivotTimestamp(PivotTimestamp& other) = delete;
-    PivotTimestamp& operator=(const PivotTimestamp& other) = delete;
+    explicit HnzPivotTimestamp(Datapoint* timestampData);
+    HnzPivotTimestamp(HnzPivotTimestamp& other) = delete;
+    HnzPivotTimestamp& operator=(const HnzPivotTimestamp& other) = delete;
     
     int SecondSinceEpoch() const {return m_secondSinceEpoch;}
     int FractionOfSecond() const {return m_fractionOfSecond;}
@@ -79,18 +79,18 @@ private:
     bool m_clockNotSynchronized;
 };
 
-class PivotObject
+class HnzPivotObject
 {
 public:
 
-    enum class PivotClass
+    enum class HnzPivotClass
 	{
 		GTIS,
 		GTIM,
         GTIC
 	};
 
-    enum class PivotCdc
+    enum class HnzPivotCdc
     {
         SPS,
         DPS,
@@ -100,7 +100,7 @@ public:
         INC
     };
 
-    enum class Validity
+    enum class HnzValidity
     {
         GOOD,
         INVALID,
@@ -108,14 +108,14 @@ public:
         QUESTIONABLE
     };
 
-    enum class Source
+    enum class HnzSource
     {
         PROCESS,
         SUBSTITUTED
     };
 
-    explicit PivotObject(Datapoint* pivotData);
-    PivotObject(const std::string& pivotLN, const std::string& valueType);
+    explicit HnzPivotObject(Datapoint* pivotData);
+    HnzPivotObject(const std::string& pivotLN, const std::string& valueType);
 
     void setIdentifier(const std::string& identifier);
     void setCause(int cause);
@@ -143,8 +143,8 @@ public:
     int getCause() const {return m_cause;}
     bool isConfirmation() const {return m_isConfirmation;}
 
-    Validity getValidity() const {return m_validity;}
-    Source getSource() const {return m_source;}
+    HnzValidity getValidity() const {return m_validity;}
+    HnzSource getSource() const {return m_source;}
 
     bool BadReference() const {return m_badReference;}
     bool Failure() const {return m_failure;}
@@ -160,6 +160,10 @@ public:
     bool IsTimestampSubstituted() const {return m_timestampSubstituted;}
     bool IsTimestampInvalid() const {return m_timestampInvalid;}
 
+    static bool checkCdcTypeMatch(HnzPivotCdc pivotCdc, HnzPivotClass pivotClass);
+    static std::string HnzPivotCdcStr(HnzPivotCdc pivotCdc);
+    static std::string HnzPivotClassStr(HnzPivotClass pivotClass);
+
 private:
 
     Datapoint* getCdc(Datapoint* dp);
@@ -172,15 +176,15 @@ private:
     Datapoint* m_dp;
     Datapoint* m_ln;
     Datapoint* m_cdc;
-    PivotClass m_pivotClass;
-    PivotCdc m_pivotCdc;
+    HnzPivotClass m_pivotClass;
+    HnzPivotCdc m_pivotCdc;
 
     std::string m_comingFrom;
     std::string m_identifier;
     int m_cause = 0;
     bool m_isConfirmation = false;
 
-    Validity m_validity = Validity::GOOD;
+    HnzValidity m_validity = HnzValidity::GOOD;
     bool m_badReference = false;
     bool m_failure = false;
     bool m_inconsistent = false;
@@ -189,11 +193,11 @@ private:
     bool m_oscillatory = false;
     bool m_outOfRange = false;
     bool m_overflow = false;
-    Source m_source = Source::PROCESS;
+    HnzSource m_source = HnzSource::PROCESS;
     bool m_operatorBlocked = false;
     bool m_test = false;
 
-    std::shared_ptr<PivotTimestamp> m_timestamp;
+    std::shared_ptr<HnzPivotTimestamp> m_timestamp;
 
     bool m_timestampSubstituted = false;
     bool m_timestampInvalid = false;
