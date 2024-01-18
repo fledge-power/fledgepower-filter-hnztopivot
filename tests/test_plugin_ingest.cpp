@@ -69,6 +69,18 @@ static const std::string test_config = QUOTE({
                         ]
                     },
                     {
+                        "label" : "TS4",
+                        "pivot_id" : "ID114564",
+                        "pivot_type" : "BscTyp",
+                        "protocols" : [
+                            {
+                                "name" : "hnzip",
+                                "address" : "544",
+                                "typeid" : "TS"
+                            }
+                        ]
+                    },
+                    {
                         "label" : "TM1",
                         "pivot_id" : "ID111111",
                         "pivot_type" : "MvTyp",
@@ -117,8 +129,20 @@ static const std::string test_config = QUOTE({
                         ]
                     },
                     {
+                        "label" : "TM5",
+                        "pivot_id" : "ID111555",
+                        "pivot_type" : "SpsTyp",
+                        "protocols" : [
+                            {
+                                "name" : "hnzip",
+                                "address" : "24",
+                                "typeid" : "TM"
+                            }
+                        ]
+                    },
+                    {
                         "label" : "TC1",
-                        "pivot_id" : "ID222222",
+                        "pivot_id" : "ID222111",
                         "pivot_type" : "SpcTyp",
                         "protocols" : [
                             {
@@ -130,7 +154,7 @@ static const std::string test_config = QUOTE({
                     },
                     {
                         "label" : "TC2",
-                        "pivot_id" : "ID333333",
+                        "pivot_id" : "ID222222",
                         "pivot_type" : "DpcTyp",
                         "protocols" : [
                             {
@@ -141,13 +165,37 @@ static const std::string test_config = QUOTE({
                         ]
                     },
                     {
+                        "label" : "TC3",
+                        "pivot_id" : "ID222333",
+                        "pivot_type" : "BscTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "144",
+                                "typeid" : "TC"
+                            }
+                        ]
+                    },
+                    {
                         "label" : "TVC1",
-                        "pivot_id" : "ID444444",
+                        "pivot_id" : "ID333111",
                         "pivot_type" : "IncTyp",
                         "protocols" : [
                             {
                                 "name": "hnzip",
                                 "address" : "31",
+                                "typeid" : "TVC"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TVC2",
+                        "pivot_id" : "ID333222",
+                        "pivot_type" : "MvTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "30",
                                 "typeid" : "TVC"
                             }
                         ]
@@ -1290,7 +1338,7 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivot)
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID222222"}},
+        {"GTIC.Identifier", {"string", "ID222111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
         {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
@@ -1323,7 +1371,7 @@ TEST_F(PivotHNZPluginIngest, TCNAckToPivot)
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID222222"}},
+        {"GTIC.Identifier", {"string", "ID222111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
         {"GTIC.Confirmation.stVal", {"int64_t", "1"}},
@@ -1356,7 +1404,7 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivotDouble)
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TC2", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID333333"}},
+        {"GTIC.Identifier", {"string", "ID222222"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
         {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
@@ -1389,7 +1437,7 @@ TEST_F(PivotHNZPluginIngest, TCNAckToPivotDouble)
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TC2", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID333333"}},
+        {"GTIC.Identifier", {"string", "ID222222"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
         {"GTIC.Confirmation.stVal", {"int64_t", "1"}},
@@ -1423,7 +1471,7 @@ TEST_F(PivotHNZPluginIngest, TVCAckToPivot)
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TVC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID444444"}},
+        {"GTIC.Identifier", {"string", "ID333111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
         {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
@@ -1457,7 +1505,7 @@ TEST_F(PivotHNZPluginIngest, TVCNAckToPivot)
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TVC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID444444"}},
+        {"GTIC.Identifier", {"string", "ID333111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
         {"GTIC.Confirmation.stVal", {"int64_t", "1"}},
@@ -1485,7 +1533,7 @@ TEST_F(PivotHNZPluginIngest, PivotToTC)
                     },
                     "ctlVal": 1
                 },
-                "Identifier": "ID222222",
+                "Identifier": "ID222111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -1523,7 +1571,7 @@ TEST_F(PivotHNZPluginIngest, PivotDoubleToTC)
                     },
                     "ctlVal": "off"
                 },
-                "Identifier": "ID333333",
+                "Identifier": "ID222222",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -1561,7 +1609,7 @@ TEST_F(PivotHNZPluginIngest, PivotToTVC)
                     },
                     "ctlVal": 42
                 },
-                "Identifier": "ID444444",
+                "Identifier": "ID333111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -1697,7 +1745,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
                     },
                     "ctlVal": 1
                 },
-                "Identifier": "ID222222",
+                "Identifier": "ID222111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -1715,7 +1763,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     std::string jsonMessageMissingPivotType = QUOTE({
         "PIVOT": {
             "GTIC": {
-                "Identifier": "ID222222",
+                "Identifier": "ID222111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -1744,7 +1792,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
                     },
                     "ctlVal": 1
                 },
-                "Identifier": "ID222222",
+                "Identifier": "ID222111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -1758,8 +1806,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 0);
 
-    printf("Testing PIVOT message with mismatching pivot type\n");
-    std::string jsonMessageMismatchPivotType = QUOTE({
+    printf("Testing PIVOT message with mismatching pivot type (TC)\n");
+    std::string jsonMessageMismatchPivotTypeTC = QUOTE({
         "PIVOT": {
             "GTIC": {
                 "SpsTyp": {
@@ -1773,14 +1821,80 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
                     },
                     "ctlVal": 1
                 },
-                "Identifier": "ID222222",
+                "Identifier": "ID222111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
             }
         }
     });
-    createReadingSet(readingSet, "PivotCommand", jsonMessageMismatchPivotType);
+    createReadingSet(readingSet, "PivotCommand", jsonMessageMismatchPivotTypeTC);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing data_object message with mismatching pivot type (TS)\n");
+    std::string jsonMessageMismatchPivotTypeTS = QUOTE({
+        "data_object":{
+            "do_type":"TS",
+            "do_station":12,
+            "do_addr":544,
+            "do_value":0,
+            "do_valid":0
+        }
+    });
+    createReadingSet(readingSet, "TS4", jsonMessageMismatchPivotTypeTS);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing data_object message with mismatching pivot type (TM)\n");
+    std::string jsonMessageMismatchPivotTypeTM = QUOTE({
+        "data_object":{
+            "do_type":"TM",
+            "do_station":12,
+            "do_addr":24,
+            "do_value":0,
+            "do_valid":0
+        }
+    });
+    createReadingSet(readingSet, "TM5", jsonMessageMismatchPivotTypeTM);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing data_object message with mismatching pivot type (TC ACK)\n");
+    std::string jsonMessageMismatchPivotTypeTCACK = QUOTE({
+        "data_object":{
+            "do_type":"TC",
+            "do_station":12,
+            "do_addr":144,
+            "do_valid":0
+        }
+    });
+    createReadingSet(readingSet, "TC3", jsonMessageMismatchPivotTypeTCACK);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing data_object message with mismatching pivot type (TVC ACK)\n");
+    std::string jsonMessageMismatchPivotTypeTVCACK = QUOTE({
+        "data_object":{
+            "do_type":"TVC",
+            "do_station":12,
+            "do_addr":30,
+            "do_valid":0
+        }
+    });
+    createReadingSet(readingSet, "TVC2", jsonMessageMismatchPivotTypeTVCACK);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -1867,7 +1981,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TVC42", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID444444"}},
+        {"GTIC.Identifier", {"string", "ID333111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
         {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
@@ -2151,7 +2265,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID222222"}},
+        {"GTIC.Identifier", {"string", "ID222111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
         {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
@@ -2180,7 +2294,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TVC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID444444"}},
+        {"GTIC.Identifier", {"string", "ID333111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
         {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
@@ -2206,7 +2320,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
                     },
                     "ctlVal": 42
                 },
-                "Identifier": "ID444444",
+                "Identifier": "ID333111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
