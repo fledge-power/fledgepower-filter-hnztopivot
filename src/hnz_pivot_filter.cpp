@@ -218,8 +218,9 @@ Datapoint* HNZPivotFilter::convertTSToPivot(const std::string& assetName, std::m
 
     // Message structure checks
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
-        HnzPivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
+        HnzPivotUtility::log_error("%s Invalid pivot type (%s) for data object type (%s)",
                                     beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
+        return nullptr;
     }
     if (!attributeFound["do_valid"]) {
         HnzPivotUtility::log_warn("%s Missing attribute do_valid in TS", beforeLog.c_str());
@@ -285,8 +286,9 @@ Datapoint* HNZPivotFilter::convertTMToPivot(const std::string& assetName, std::m
 
     // Message structure checks
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
-        HnzPivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
+        HnzPivotUtility::log_error("%s Invalid pivot type (%s) for data object type (%s)",
                                     beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
+        return nullptr;
     }
     if (!attributeFound["do_valid"]) {
         HnzPivotUtility::log_warn("%s Missing attribute do_valid in TM", beforeLog.c_str());
@@ -340,8 +342,9 @@ Datapoint* HNZPivotFilter::convertTCACKToPivot(const std::string& assetName, std
     // Message structure checks
     const std::string& pivotType = exchangeConfig->getPivotType();
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
-        HnzPivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
-                                    beforeLog.c_str(), pivotType.c_str(), dataObject.doType.c_str());
+        HnzPivotUtility::log_error("%s Invalid pivot type (%s) for data object type (%s)",
+                                    beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
+        return nullptr;
     }
     if (!attributeFound["do_valid"]) {
         HnzPivotUtility::log_warn("%s Missing attribute do_valid in TC ACK", beforeLog.c_str());
@@ -367,8 +370,9 @@ Datapoint* HNZPivotFilter::convertTVCACKToPivot(const std::string& assetName, st
 
     // Message structure checks
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
-        HnzPivotUtility::log_warn("%s Invalid pivot type (%s) for data object type (%s)",
+        HnzPivotUtility::log_error("%s Invalid pivot type (%s) for data object type (%s)",
                                     beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
+        return nullptr;
     }
     if (!attributeFound["do_valid"]) {
         HnzPivotUtility::log_warn("%s Missing attribute do_valid in TVC ACK", beforeLog.c_str());
