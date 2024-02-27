@@ -25,6 +25,9 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
   m_exchange_data_is_complete = false;
   bool is_complete = true;
 
+  m_exchangeDefinitions.clear();
+  m_pivotIdLookup.clear();
+
   rapidjson::Document document;
   if (document.Parse(exchangeConfig.c_str()).HasParseError()) {
     HnzPivotUtility::log_fatal("Parsing error in exchanged_data json, offset " +
