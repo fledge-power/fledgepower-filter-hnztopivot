@@ -69,6 +69,18 @@ static const std::string test_config = QUOTE({
                         ]
                     },
                     {
+                        "label" : "TS4",
+                        "pivot_id" : "ID114564",
+                        "pivot_type" : "BscTyp",
+                        "protocols" : [
+                            {
+                                "name" : "hnzip",
+                                "address" : "544",
+                                "typeid" : "TS"
+                            }
+                        ]
+                    },
+                    {
                         "label" : "TM1",
                         "pivot_id" : "ID111111",
                         "pivot_type" : "MvTyp",
@@ -117,8 +129,20 @@ static const std::string test_config = QUOTE({
                         ]
                     },
                     {
+                        "label" : "TM5",
+                        "pivot_id" : "ID111555",
+                        "pivot_type" : "SpsTyp",
+                        "protocols" : [
+                            {
+                                "name" : "hnzip",
+                                "address" : "24",
+                                "typeid" : "TM"
+                            }
+                        ]
+                    },
+                    {
                         "label" : "TC1",
-                        "pivot_id" : "ID222222",
+                        "pivot_id" : "ID222111",
                         "pivot_type" : "SpcTyp",
                         "protocols" : [
                             {
@@ -130,7 +154,7 @@ static const std::string test_config = QUOTE({
                     },
                     {
                         "label" : "TC2",
-                        "pivot_id" : "ID333333",
+                        "pivot_id" : "ID222222",
                         "pivot_type" : "DpcTyp",
                         "protocols" : [
                             {
@@ -141,13 +165,37 @@ static const std::string test_config = QUOTE({
                         ]
                     },
                     {
+                        "label" : "TC3",
+                        "pivot_id" : "ID222333",
+                        "pivot_type" : "BscTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "144",
+                                "typeid" : "TC"
+                            }
+                        ]
+                    },
+                    {
                         "label" : "TVC1",
-                        "pivot_id" : "ID444444",
+                        "pivot_id" : "ID333111",
                         "pivot_type" : "IncTyp",
                         "protocols" : [
                             {
                                 "name": "hnzip",
                                 "address" : "31",
+                                "typeid" : "TVC"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TVC2",
+                        "pivot_id" : "ID333222",
+                        "pivot_type" : "MvTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "30",
                                 "typeid" : "TVC"
                             }
                         ]
@@ -180,6 +228,7 @@ static const std::vector<std::string> allPivotAttributeNames = {
     "GTIM.MvTyp.t.SecondSinceEpoch", "GTIM.MvTyp.t.FractionOfSecond", "GTIM.MvTyp.t.TimeQuality.clockNotSynchronized",
     // TC/TVC messages
     "GTIC.ComingFrom", "GTIC.Identifier", "GTIC.Cause.stVal", "GTIC.TmValidity.stVal", "GTIC.TmOrg.stVal",
+    "GTIC.Confirmation.stVal",
     "GTIC.SpcTyp.stVal", "GTIC.SpcTyp.ctlVal", "GTIC.SpcTyp.q.Validity", "GTIC.SpcTyp.q.DetailQuality.oldData",
     "GTIC.SpcTyp.t.SecondSinceEpoch", "GTIC.SpcTyp.t.FractionOfSecond", "GTIC.SpcTyp.t.TimeQuality.clockNotSynchronized",
     "GTIC.DpcTyp.stVal", "GTIC.DpcTyp.ctlVal", "GTIC.DpcTyp.q.Validity", "GTIC.DpcTyp.q.DetailQuality.oldData",
@@ -214,6 +263,16 @@ static void createReadingSet(ReadingSet*& outReadingSet, const std::string& asse
     createReadingSet(outReadingSet, assetName, std::vector<std::string>{json});
 }
 
+static void createEmptyReadingSet(ReadingSet*& outReadingSet, const std::string& assetName)
+{
+    std::vector<Datapoint*> *allPoints = new std::vector<Datapoint*>();
+    Reading *reading = new Reading(assetName, *allPoints);
+    std::vector<Reading*> *readings = new std::vector<Reading*>();
+    readings->push_back(reading);
+    // Create ReadingSet
+    outReadingSet = new ReadingSet(readings);
+}
+
 static bool hasChild(Datapoint& dp, const std::string& childLabel) {
     DatapointValue& dpv = dp.getData();
 
@@ -246,7 +305,7 @@ template <typename T>
 static T callOnLastPathElement(Datapoint& dp, const std::string& childPath, std::function<T(Datapoint&, const std::string&)> func) {
     if (childPath.find(".") != std::string::npos) {
         // Check if the first element in the path is a child of current datapoint
-        std::vector<std::string> splittedPath = PivotUtility::split(childPath, '.');
+        std::vector<std::string> splittedPath = HnzPivotUtility::split(childPath, '.');
         const std::string& topNode(splittedPath[0]);
         Datapoint* child = getChild(dp, topNode);
         if (child == nullptr) {
@@ -254,7 +313,7 @@ static T callOnLastPathElement(Datapoint& dp, const std::string& childPath, std:
         }
         // If it is, call recursively this function on the datapoint found with the rest of the path
         splittedPath.erase(splittedPath.begin());
-        const std::string& remainingPath(PivotUtility::join(splittedPath, "."));
+        const std::string& remainingPath(HnzPivotUtility::join(splittedPath, "."));
         return callOnLastPathElement(*child, remainingPath, func);
     }
     else {
@@ -324,9 +383,24 @@ static void validateReading(std::shared_ptr<Reading> currentReading, const std::
     ASSERT_NE(nullptr, currentReading.get()) << assetName << ": Invalid reading";
     ASSERT_EQ(assetName, currentReading->getAssetName());
     // Validate data_object structure received
-    ASSERT_TRUE(hasObject(*currentReading, rootObjectName)) << assetName << ": " << rootObjectName << " not found";
-    Datapoint* data_object = getObject(*currentReading, rootObjectName);
-    ASSERT_NE(nullptr, data_object) << assetName << ": " << rootObjectName << " is null";
+    Datapoint* data_object = nullptr;
+    // If no root object name is provided, then create a dummy root object to hold all datapoints
+    if (rootObjectName.empty()) {
+        std::vector<Datapoint*> datapoints = currentReading->getReadingData();
+        ASSERT_NE(datapoints.size(), 0) << assetName << ": Reading contains no data object";
+        std::vector<Datapoint*>* rootDatapoints = new std::vector<Datapoint*>;
+        DatapointValue dpv(rootDatapoints, true);
+        Datapoint* rootDatapoint = new Datapoint("dummyRootDp", dpv);
+        std::vector<Datapoint*>* subDatapoints = rootDatapoint->getData().getDpVec();
+        subDatapoints->insert(subDatapoints->end(), datapoints.begin(), datapoints.end());
+        data_object = rootDatapoint;
+    }
+    // If root object name is provided, then check that root object is the expected one
+    else {
+        ASSERT_TRUE(hasObject(*currentReading, rootObjectName)) << assetName << ": " << rootObjectName << " not found";
+        data_object = getObject(*currentReading, rootObjectName);
+        ASSERT_NE(nullptr, data_object) << assetName << ": " << rootObjectName << " is null";
+    }
     // Validate existance of the required keys and non-existance of the others
     for (const auto &kvp : attributes) {
         const std::string& name(kvp.first);
@@ -352,7 +426,7 @@ static void validateReading(std::shared_ptr<Reading> currentReading, const std::
             ASSERT_EQ(std::stoll(expectedValue), getIntValue(*callOnLastPathElement(*data_object, name, getChildFn))) << assetName << ": Unexpected value for attribute " << name;
         }
         else if (type == std::string("int64_t_range")) {
-            auto splitted = PivotUtility::split(expectedValue, ';');
+            auto splitted = HnzPivotUtility::split(expectedValue, ';');
             ASSERT_EQ(splitted.size(), 2);
             const std::string& expectedRangeMin = splitted.front();
             const std::string& expectedRangeMax = splitted.back();
@@ -476,70 +550,52 @@ TEST_F(PivotHNZPluginIngest, IngestOnPluginDisabled)
 TEST_F(PivotHNZPluginIngest, OneReadingMultipleDatapoints)
 {
     std::string jsonMessagePivot1 = QUOTE({
-        "PIVOT": {
-            "GTIC": {
-                "SpcTyp": {
-                    "q": {
-                        "Source": "process",
-                        "Validity": "good"
-                    },
-                    "t": {
-                        "FractionOfSecond": 9529458,
-                        "SecondSinceEpoch": 1669714183
-                    },
-                    "ctlVal": 1
-                },
-                "Identifier": "ID222222",
-                "TmOrg": {
-                    "stVal": "genuine"
-                }
-            }
+        "data_object":{
+            "do_type":"TS",
+            "do_station":12,
+            "do_addr":511,
+            "do_value":1,
+            "do_valid":0,
+            "do_cg":0,
+            "do_outdated":0,
+            "do_ts": 1685019425432,
+            "do_ts_iv":0,
+            "do_ts_c":0,
+            "do_ts_s":0
         }
     });
     std::string jsonMessagePivot2 = QUOTE({
-        "PIVOT": {
-            "GTIC": {
-                "SpcTyp": {
-                    "q": {
-                        "Source": "process",
-                        "Validity": "good"
-                    },
-                    "t": {
-                        "FractionOfSecond": 9529458,
-                        "SecondSinceEpoch": 1669714184
-                    },
-                    "ctlVal": 0
-                },
-                "Identifier": "ID222222",
-                "TmOrg": {
-                    "stVal": "genuine"
-                }
-            }
+        "data_object":{
+            "do_type":"TS",
+            "do_station":12,
+            "do_addr":511,
+            "do_value":1,
+            "do_valid":0,
+            "do_cg":0,
+            "do_outdated":0,
+            "do_ts": 1685019425432,
+            "do_ts_iv":0,
+            "do_ts_c":0,
+            "do_ts_s":0
         }
     });
     std::string jsonMessagePivot3 = QUOTE({
-        "PIVOT": {
-            "GTIC": {
-                "SpcTyp": {
-                    "q": {
-                        "Source": "process",
-                        "Validity": "good"
-                    },
-                    "t": {
-                        "FractionOfSecond": 9529458,
-                        "SecondSinceEpoch": 1669714185
-                    },
-                    "ctlVal": 0
-                },
-                "Identifier": "ID222222",
-                "TmOrg": {
-                    "stVal": "genuine"
-                }
-            }
+        "data_object":{
+            "do_type":"TS",
+            "do_station":12,
+            "do_addr":511,
+            "do_value":1,
+            "do_valid":0,
+            "do_cg":0,
+            "do_outdated":0,
+            "do_ts": 1685019425432,
+            "do_ts_iv":0,
+            "do_ts_c":0,
+            "do_ts_s":0
         }
     });
     ReadingSet* readingSet = nullptr;
-    createReadingSet(readingSet, "TC1", {jsonMessagePivot1, jsonMessagePivot2, jsonMessagePivot3});
+    createReadingSet(readingSet, "TS1", {jsonMessagePivot1, jsonMessagePivot2, jsonMessagePivot3});
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -576,7 +632,7 @@ TEST_F(PivotHNZPluginIngest, TSCEToPivot)
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(1685019425432);
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(1685019425432);
     validateReading(lastReading, "TS1", "PIVOT", allPivotAttributeNames, {
         {"GTIS.ComingFrom", {"string", "hnzip"}},
         {"GTIS.Identifier", {"string", "ID114561"}},
@@ -609,7 +665,7 @@ TEST_F(PivotHNZPluginIngest, TSCGToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -651,7 +707,7 @@ TEST_F(PivotHNZPluginIngest, TSToPivotDouble)
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(1685019425432);
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(1685019425432);
     validateReading(lastReading, "TS2", "PIVOT", allPivotAttributeNames, {
         {"GTIS.ComingFrom", {"string", "hnzip"}},
         {"GTIS.Identifier", {"string", "ID114562"}},
@@ -691,7 +747,7 @@ TEST_F(PivotHNZPluginIngest, TSQualityToPivot)
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(1685019425432);
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(1685019425432);
     validateReading(lastReading, "TS3", "PIVOT", allPivotAttributeNames, {
         {"GTIS.ComingFrom", {"string", "hnzip"}},
         {"GTIS.Identifier", {"string", "ID114567"}},
@@ -925,7 +981,7 @@ TEST_F(PivotHNZPluginIngest, TSQualityToPivot)
     ASSERT_NE(readingSet, nullptr);
 
     outputHandlerCalled = 0;
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -959,7 +1015,7 @@ TEST_F(PivotHNZPluginIngest, TSQualityToPivot)
     ASSERT_NE(readingSet, nullptr);
 
     outputHandlerCalled = 0;
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -994,7 +1050,7 @@ TEST_F(PivotHNZPluginIngest, TSQualityToPivot)
     ASSERT_NE(readingSet, nullptr);
 
     outputHandlerCalled = 0;
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1031,7 +1087,7 @@ TEST_F(PivotHNZPluginIngest, TMAToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1067,7 +1123,7 @@ TEST_F(PivotHNZPluginIngest, TM8ToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1103,7 +1159,7 @@ TEST_F(PivotHNZPluginIngest, TM16ToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1140,7 +1196,7 @@ TEST_F(PivotHNZPluginIngest, TMQualityToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
@@ -1173,7 +1229,7 @@ TEST_F(PivotHNZPluginIngest, TMQualityToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1208,7 +1264,7 @@ TEST_F(PivotHNZPluginIngest, TMQualityToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1242,7 +1298,7 @@ TEST_F(PivotHNZPluginIngest, TMQualityToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1268,7 +1324,6 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivot)
             "do_type":"TC",
             "do_station":12,
             "do_addr":142,
-            "do_value":0,
             "do_valid":0
         }
     });
@@ -1277,15 +1332,49 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID222222"}},
+        {"GTIC.Identifier", {"string", "ID222111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
+        {"GTIC.SpcTyp.q.Validity", {"string", "good"}},
+        // NB: Time was added by hnztopivot plugin
+        {"GTIC.SpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
+        {"GTIC.SpcTyp.t.FractionOfSecond", {"int64_t_range", "0;99999999"}},
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, TCNAckToPivot)
+{
+    std::string jsonMessageTCAck = QUOTE({
+        "data_object":{
+            "do_type":"TC",
+            "do_station":12,
+            "do_addr":142,
+            "do_valid":1
+        }
+    });
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "TC1", jsonMessageTCAck);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
+    long sec = pivotTimestampPair.first;
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "TC1", "PIVOT", allPivotAttributeNames, {
+        {"GTIC.ComingFrom", {"string", "hnzip"}},
+        {"GTIC.Identifier", {"string", "ID222111"}},
+        {"GTIC.Cause.stVal", {"int64_t", "7"}},
+        {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "1"}},
         {"GTIC.SpcTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.SpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -1301,7 +1390,6 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivotDouble)
             "do_type":"TC",
             "do_station":12,
             "do_addr":143,
-            "do_value":0,
             "do_valid":0
         }
     });
@@ -1310,15 +1398,49 @@ TEST_F(PivotHNZPluginIngest, TCAckToPivotDouble)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TC2", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID333333"}},
+        {"GTIC.Identifier", {"string", "ID222222"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
+        {"GTIC.DpcTyp.q.Validity", {"string", "good"}},
+        // NB: Time was added by hnztopivot plugin
+        {"GTIC.DpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
+        {"GTIC.DpcTyp.t.FractionOfSecond", {"int64_t_range", "0;99999999"}},
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, TCNAckToPivotDouble)
+{
+    std::string jsonMessageTCAck = QUOTE({
+        "data_object":{
+            "do_type":"TC",
+            "do_station":12,
+            "do_addr":143,
+            "do_valid":1
+        }
+    });
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "TC2", jsonMessageTCAck);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
+    long sec = pivotTimestampPair.first;
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "TC2", "PIVOT", allPivotAttributeNames, {
+        {"GTIC.ComingFrom", {"string", "hnzip"}},
+        {"GTIC.Identifier", {"string", "ID222222"}},
+        {"GTIC.Cause.stVal", {"int64_t", "7"}},
+        {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "1"}},
         {"GTIC.DpcTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.DpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -1343,15 +1465,50 @@ TEST_F(PivotHNZPluginIngest, TVCAckToPivot)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TVC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID444444"}},
+        {"GTIC.Identifier", {"string", "ID333111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
+        {"GTIC.IncTyp.q.Validity", {"string", "good"}},
+        // NB: Time was added by hnztopivot plugin
+        {"GTIC.IncTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
+        {"GTIC.IncTyp.t.FractionOfSecond", {"int64_t_range", "0;99999999"}},
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, TVCNAckToPivot)
+{
+    std::string jsonMessageTVCAck = QUOTE({
+        "data_object":{
+            "do_type":"TVC",
+            "do_station":12,
+            "do_addr":31,
+            "do_value":0,
+            "do_valid":1
+        }
+    });
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "TVC1", jsonMessageTVCAck);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
+    long sec = pivotTimestampPair.first;
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "TVC1", "PIVOT", allPivotAttributeNames, {
+        {"GTIC.ComingFrom", {"string", "hnzip"}},
+        {"GTIC.Identifier", {"string", "ID333111"}},
+        {"GTIC.Cause.stVal", {"int64_t", "7"}},
+        {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "1"}},
         {"GTIC.IncTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.IncTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -1376,7 +1533,7 @@ TEST_F(PivotHNZPluginIngest, PivotToTC)
                     },
                     "ctlVal": 1
                 },
-                "Identifier": "ID222222",
+                "Identifier": "ID222111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -1384,13 +1541,13 @@ TEST_F(PivotHNZPluginIngest, PivotToTC)
         }
     });
     ReadingSet* readingSet = nullptr;
-    createReadingSet(readingSet, "TC1", jsonMessagePivotTC);
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTC);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    validateReading(lastReading, "TC1", "command_object", allCommandAttributeNames, {
+    validateReading(lastReading, "HNZCommand", "", allCommandAttributeNames, {
         {"co_type", {"string", "TC"}},
         {"co_addr", {"int64_t", "142"}},
         {"co_value", {"int64_t", "1"}},
@@ -1414,7 +1571,7 @@ TEST_F(PivotHNZPluginIngest, PivotDoubleToTC)
                     },
                     "ctlVal": "off"
                 },
-                "Identifier": "ID333333",
+                "Identifier": "ID222222",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -1422,16 +1579,16 @@ TEST_F(PivotHNZPluginIngest, PivotDoubleToTC)
         }
     });
     ReadingSet* readingSet = nullptr;
-    createReadingSet(readingSet, "TC2", jsonMessagePivotTCDouble);
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTCDouble);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    validateReading(lastReading, "TC2", "command_object", allCommandAttributeNames, {
+    validateReading(lastReading, "HNZCommand", "", allCommandAttributeNames, {
         {"co_type", {"string", "TC"}},
         {"co_addr", {"int64_t", "143"}},
-        {"co_value", {"int64_t", "0"}},
+        {"co_value", {"int64_t", "2"}},
     });
     if(HasFatalFailure()) return;
 }
@@ -1452,7 +1609,7 @@ TEST_F(PivotHNZPluginIngest, PivotToTVC)
                     },
                     "ctlVal": 42
                 },
-                "Identifier": "ID444444",
+                "Identifier": "ID333111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -1460,13 +1617,13 @@ TEST_F(PivotHNZPluginIngest, PivotToTVC)
         }
     });
     ReadingSet* readingSet = nullptr;
-    createReadingSet(readingSet, "TVC1", jsonMessagePivotTVC);
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTVC);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    validateReading(lastReading, "TVC1", "command_object", allCommandAttributeNames, {
+    validateReading(lastReading, "HNZCommand", "", allCommandAttributeNames, {
         {"co_type", {"string", "TVC"}},
         {"co_addr", {"int64_t", "31"}},
         {"co_value", {"int64_t", "42"}},
@@ -1498,19 +1655,31 @@ TEST_F(PivotHNZPluginIngest, SouthEvent)
 
 TEST_F(PivotHNZPluginIngest, InvalidMessages)
 {
-    printf("Testing message with invalid root object\n");
-    std::string jsonMessageInvalidRoot = QUOTE({
-        "invalid_message":{
-            "val": 42
-        }
-    });
+    printf("Testing message with no datapoint\n");
     ReadingSet* readingSet = nullptr;
-    createReadingSet(readingSet, "INVALID", jsonMessageInvalidRoot);
+    createEmptyReadingSet(readingSet, "INVALID");
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing message with unknown root object\n");
+    std::string jsonMessageUnknownRoot = QUOTE({
+        "unknown_message":{
+            "val": 42
+        }
+    });
+    createReadingSet(readingSet, "UNKNOWN", jsonMessageUnknownRoot);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    outputHandlerCalled = 0;
+    validateReading(lastReading, "UNKNOWN", "unknown_message", {"val"}, {
+        {"val", {"int64_t", "42"}},
+    });
 
     printf("Testing data_object message with missing do_type\n");
     std::string jsonMessageMissingType = QUOTE({
@@ -1521,7 +1690,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
             "do_valid":0
         }
     });
-    createReadingSet(readingSet, "TVC1", jsonMessageMissingType);
+    createReadingSet(readingSet, "PivotCommand", jsonMessageMissingType);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -1537,7 +1706,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
             "do_valid":0
         }
     });
-    createReadingSet(readingSet, "TVC1", jsonMessageMissingAddress);
+    createReadingSet(readingSet, "PivotCommand", jsonMessageMissingAddress);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -1554,7 +1723,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
             "do_valid":0
         }
     });
-    createReadingSet(readingSet, "TVC1", jsonMessageUnknownPivotId);
+    createReadingSet(readingSet, "PivotCommand", jsonMessageUnknownPivotId);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -1576,14 +1745,14 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
                     },
                     "ctlVal": 1
                 },
-                "Identifier": "ID222222",
+                "Identifier": "ID222111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
             }
         }
     });
-    createReadingSet(readingSet, "TC1", jsonMessageInvalidPivotRootType);
+    createReadingSet(readingSet, "PivotCommand", jsonMessageInvalidPivotRootType);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -1594,14 +1763,14 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     std::string jsonMessageMissingPivotType = QUOTE({
         "PIVOT": {
             "GTIC": {
-                "Identifier": "ID222222",
+                "Identifier": "ID222111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
             }
         }
     });
-    createReadingSet(readingSet, "TC1", jsonMessageMissingPivotType);
+    createReadingSet(readingSet, "PivotCommand", jsonMessageMissingPivotType);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -1610,6 +1779,35 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
 
     printf("Testing PIVOT message with invalid pivot type\n");
     std::string jsonMessageInvalidPivotType = QUOTE({
+        "PIVOT": {
+            "GTIC": {
+                "ZZZ": {
+                    "q": {
+                        "Source": "process",
+                        "Validity": "good"
+                    },
+                    "t": {
+                        "FractionOfSecond": 9529458,
+                        "SecondSinceEpoch": 1669714185
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID222111",
+                "TmOrg": {
+                    "stVal": "substituted"
+                }
+            }
+        }
+    });
+    createReadingSet(readingSet, "PivotCommand", jsonMessageInvalidPivotType);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing PIVOT message with mismatching pivot type (TC)\n");
+    std::string jsonMessageMismatchPivotTypeTC = QUOTE({
         "PIVOT": {
             "GTIC": {
                 "SpsTyp": {
@@ -1623,14 +1821,80 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
                     },
                     "ctlVal": 1
                 },
-                "Identifier": "ID222222",
+                "Identifier": "ID222111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
             }
         }
     });
-    createReadingSet(readingSet, "TC1", jsonMessageInvalidPivotType);
+    createReadingSet(readingSet, "PivotCommand", jsonMessageMismatchPivotTypeTC);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing data_object message with mismatching pivot type (TS)\n");
+    std::string jsonMessageMismatchPivotTypeTS = QUOTE({
+        "data_object":{
+            "do_type":"TS",
+            "do_station":12,
+            "do_addr":544,
+            "do_value":0,
+            "do_valid":0
+        }
+    });
+    createReadingSet(readingSet, "TS4", jsonMessageMismatchPivotTypeTS);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing data_object message with mismatching pivot type (TM)\n");
+    std::string jsonMessageMismatchPivotTypeTM = QUOTE({
+        "data_object":{
+            "do_type":"TM",
+            "do_station":12,
+            "do_addr":24,
+            "do_value":0,
+            "do_valid":0
+        }
+    });
+    createReadingSet(readingSet, "TM5", jsonMessageMismatchPivotTypeTM);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing data_object message with mismatching pivot type (TC ACK)\n");
+    std::string jsonMessageMismatchPivotTypeTCACK = QUOTE({
+        "data_object":{
+            "do_type":"TC",
+            "do_station":12,
+            "do_addr":144,
+            "do_valid":0
+        }
+    });
+    createReadingSet(readingSet, "TC3", jsonMessageMismatchPivotTypeTCACK);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 0);
+
+    printf("Testing data_object message with mismatching pivot type (TVC ACK)\n");
+    std::string jsonMessageMismatchPivotTypeTVCACK = QUOTE({
+        "data_object":{
+            "do_type":"TVC",
+            "do_station":12,
+            "do_addr":30,
+            "do_valid":0
+        }
+    });
+    createReadingSet(readingSet, "TVC2", jsonMessageMismatchPivotTypeTVCACK);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -1658,7 +1922,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
             }
         }
     });
-    createReadingSet(readingSet, "TC1", jsonMessageMissingId);
+    createReadingSet(readingSet, "PivotCommand", jsonMessageMissingId);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -1687,7 +1951,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
             }
         }
     });
-    createReadingSet(readingSet, "TC1", jsonMessageUnknownId);
+    createReadingSet(readingSet, "PivotCommand", jsonMessageUnknownId);
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
@@ -1710,16 +1974,17 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    auto pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    auto pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     long sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TVC42", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID444444"}},
+        {"GTIC.Identifier", {"string", "ID333111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
         {"GTIC.IncTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.IncTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -1738,7 +2003,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1767,7 +2032,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1800,7 +2065,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1829,7 +2094,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1862,7 +2127,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1896,7 +2161,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1930,7 +2195,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1964,7 +2229,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
@@ -1993,16 +2258,17 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID222222"}},
+        {"GTIC.Identifier", {"string", "ID222111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
         {"GTIC.SpcTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.SpcTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -2021,16 +2287,17 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     if(HasFatalFailure()) return;
     ASSERT_NE(readingSet, nullptr);
 
-    pivotTimestampPair = PivotTimestamp::fromTimestamp(PivotTimestamp::getCurrentTimestampMs());
+    pivotTimestampPair = HnzPivotTimestamp::fromTimestamp(HnzPivotTimestamp::getCurrentTimestampMs());
     sec = pivotTimestampPair.first;
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
     validateReading(lastReading, "TVC1", "PIVOT", allPivotAttributeNames, {
         {"GTIC.ComingFrom", {"string", "hnzip"}},
-        {"GTIC.Identifier", {"string", "ID444444"}},
+        {"GTIC.Identifier", {"string", "ID333111"}},
         {"GTIC.Cause.stVal", {"int64_t", "7"}},
         {"GTIC.TmOrg.stVal", {"string", "substituted"}},
+        {"GTIC.Confirmation.stVal", {"int64_t", "0"}},
         {"GTIC.IncTyp.q.Validity", {"string", "good"}},
         // NB: Time was added by hnztopivot plugin
         {"GTIC.IncTyp.t.SecondSinceEpoch", {"int64_t_range", std::to_string(sec) + ";" + std::to_string(sec+1)}},
@@ -2053,7 +2320,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
                     },
                     "ctlVal": 42
                 },
-                "Identifier": "ID444444",
+                "Identifier": "ID333111",
                 "TmOrg": {
                     "stVal": "substituted"
                 }
@@ -2067,7 +2334,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     outputHandlerCalled = 0;
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
     ASSERT_EQ(outputHandlerCalled, 1);
-    validateReading(lastReading, "TVC42", "command_object", allCommandAttributeNames, {
+    validateReading(lastReading, "TVC42", "", allCommandAttributeNames, {
         {"co_type", {"string", "TVC"}},
         {"co_addr", {"int64_t", "31"}},
         {"co_value", {"int64_t", "42"}},
