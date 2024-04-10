@@ -26,7 +26,6 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
   bool is_complete = true;
 
   m_exchangeDefinitions.clear();
-  m_exchangeDefinitionsLabel.clear();
   m_pivotIdLookup.clear();
 
   rapidjson::Document document;
@@ -106,7 +105,6 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
       m_exchangeDefinitions[pivotId] = newDp;
       m_pivotIdLookup[m_getLookupHash(msg_code, msg_address)] = pivotId;
       m_pivotIdLookup[m_getLookupHash(msg_code, msg_station)] = pivotId;
-      m_exchangeDefinitionsLabel[label] = newDp;
     }
   }
 
@@ -228,17 +226,6 @@ std::string HNZPivotConfig::findPivotId(const std::string& typeIdStr, unsigned i
 const std::string& HNZPivotConfig::getPluginName() {
   static std::string pluginName(FILTER_NAME);
   return pluginName;
-}
-
-HNZPivotDataPoint *HNZPivotConfig::getExchangeDefinitionsByLabel(const std::string& label)
-{
-    auto it = m_exchangeDefinitionsLabel.find(label);
-    if (it != m_exchangeDefinitionsLabel.end()) {
-        return it->second.get();
-    }
-    else {
-        return nullptr;
-    }
 }
 
 std::string HNZPivotConfig::m_getLookupHash(const std::string& typeIdStr, unsigned int address) const {

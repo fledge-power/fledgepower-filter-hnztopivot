@@ -91,12 +91,10 @@ private:
 
     Datapoint* createDp(const std::string& name);
 
-    Datapoint* createDpWithValue(const std::string& name, bool value);
-    Datapoint* createDpWithValue(const std::string& name, unsigned int value);
-    Datapoint* createDpWithValue(const std::string& name, long value);
-    Datapoint* createDpWithValue(const std::string& name, double value);
-    Datapoint* createDpWithValue(const std::string& name, const std::string& value);
-    Datapoint *createDpWithValue(const std::string &name, Datapoint* value);
+
+    template <class T>
+    Datapoint* createDpWithValue(const std::string& name, const T value);
+    
     bool convertDatapoint(const std::string& assetName, Datapoint* dp, std::vector<Datapoint*>& convertedDatapoints);
 
     template <typename T>
@@ -116,7 +114,8 @@ private:
     Datapoint* convertTVCACKToPivot(const std::string& assetName, std::map<std::string, bool>& attributeFound,
                                     const GenericDataObject& dataObject, std::shared_ptr<HNZPivotDataPoint> exchangeConfig);
 
-    std::vector<Datapoint*> convertDatapointToHNZCommand(const std::string& assetName, Datapoint* sourceDp) const;
+
+    std::vector<Datapoint*> convertDatapointToHNZ(const std::string& assetName, Datapoint* sourceDp) const;
 
     std::shared_ptr<HNZPivotConfig> m_filterConfig;
     std::recursive_mutex            m_configMutex;

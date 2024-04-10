@@ -35,13 +35,35 @@ constexpr char MESSAGE_STATION[] = "station";
 class HNZPivotDataPoint
 {
 public:
-    HNZPivotDataPoint(const std::string& label, const std::string& pivotId, const std::string& pivotType, const std::string& typeIdStr, unsigned int address, unsigned int station);
+    /**
+    * @brief Constructor of the HNZPivotDataPoint class.
+    *
+    * @param label The label of the data point.
+    * @param pivotId The pivot identifier.
+    * @param pivotType The type of the pivot.
+    * @param typeIdStr The type identifier as string.
+    * @param address The address of the data point.
+    * @param station The station associated with the data point.
+    */
+    HNZPivotDataPoint(
+    const std::string& label,
+    const std::string& pivotId,
+    const std::string& pivotType,
+    const std::string& typeIdStr,
+    unsigned int address,
+    unsigned int station);
 
     const std::string& getLabel() const {return m_label;}
     const std::string& getPivotId() const {return m_pivotId;}
     const std::string& getPivotType() const {return m_pivotType;}
     const std::string& getTypeId() const {return m_typeIdStr;}
     unsigned int getAddress() const {return m_address;}
+
+    /**
+    * @brief Retrieves the station associated with the data point.
+    *
+    * @return The station associated with the data point.
+    */
     unsigned int getStation() const {return m_station;}
 private:
     std::string  m_label;
@@ -64,7 +86,7 @@ public:
     std::string findPivotId(const std::string& typeIdStr, unsigned int address) const;
     static const std::string& getPluginName();
     bool isComplete() const {return m_exchange_data_is_complete;};
-    HNZPivotDataPoint* getExchangeDefinitionsByLabel(const std::string& label);
+
 private:
     static bool m_check_string(const rapidjson::Value &json, const char *key);
     static bool m_check_array(const rapidjson::Value &json, const char *key);
@@ -85,8 +107,6 @@ private:
     /* Map used to find the pivotId from the combination of typeid and address
        -> "typeid-address" is the key */
     std::map<std::string, std::string> m_pivotIdLookup;
-
-    std::map<std::string, std::shared_ptr<HNZPivotDataPoint>> m_exchangeDefinitionsLabel;
 };
 
 #endif /* PIVOT_HNZ_CONFIG_H */

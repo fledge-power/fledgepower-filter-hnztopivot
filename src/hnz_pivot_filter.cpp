@@ -74,42 +74,6 @@ static void appendTimestamp(HnzPivotObject &pivot, bool hasDoTs, unsigned long d
     }
 }
 
-Datapoint *HNZPivotFilter::createDpWithValue(const std::string &name, bool value)
-{
-    DatapointValue root_value(value ? 1L : 0L);
-    return new Datapoint(name, root_value);
-}
-
-Datapoint *HNZPivotFilter::createDpWithValue(const std::string &name, unsigned int value)
-{
-    DatapointValue root_value(static_cast<long int>(value));
-    return new Datapoint(name, root_value);
-}
-
-Datapoint *HNZPivotFilter::createDpWithValue(const std::string &name, long value)
-{
-    DatapointValue root_value(static_cast<long int>(value));
-    return new Datapoint(name, root_value);
-}
-
-Datapoint *HNZPivotFilter::createDpWithValue(const std::string &name, double value)
-{
-    DatapointValue root_value(value);
-    return new Datapoint(name, root_value);
-}
-
-Datapoint *HNZPivotFilter::createDpWithValue(const std::string &name, const std::string &value)
-{
-    DatapointValue root_value(value);
-    return new Datapoint(name, root_value);
-}
-
-Datapoint *HNZPivotFilter::createDpWithValue(const std::string &name, Datapoint *value)
-{
-    DatapointValue root_value(value->getData());
-    return new Datapoint(name, root_value);
-}
-
 template <typename T>
 void HNZPivotFilter::readAttribute(std::map<std::string, bool> &attributeFound, Datapoint *dp,
                                    const std::string &targetName, T &out)
@@ -477,7 +441,7 @@ Datapoint *HNZPivotFilter::convertTVCACKToPivot(const std::string &assetName, st
     return pivot.toDatapoint();
 }
 
-std::vector<Datapoint *> HNZPivotFilter::convertDatapointToHNZCommand(const std::string &assetName, Datapoint *sourceDp) const
+std::vector<Datapoint *> HNZPivotFilter::convertDatapointToHNZ(const std::string &assetName, Datapoint *sourceDp) const
 {
     std::vector<Datapoint *> convertedDatapoints;
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - " + assetName + " - HNZPivotFilter::convertDatapointToHNZCommand -";
@@ -529,7 +493,7 @@ bool HNZPivotFilter::convertDatapoint(const std::string &assetName, Datapoint *d
         }
     }
     else if (dp->getName() == "PIVOT") {
-        std::vector<Datapoint*> convertedDps = convertDatapointToHNZCommand(assetName, dp);
+        std::vector<Datapoint*> convertedDps = convertDatapointToHNZ(assetName, dp);
 
         if (!convertedDps.empty()) {
             convertedDatapoints.insert(convertedDatapoints.end(), convertedDps.begin(), convertedDps.end());
