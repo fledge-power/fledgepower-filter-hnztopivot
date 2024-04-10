@@ -70,13 +70,13 @@ private:
 
     void handleTimeQuality(Datapoint* timeQuality);
 
-    int m_secondSinceEpoch;
-    int m_fractionOfSecond;
+    int m_secondSinceEpoch{0};
+    int m_fractionOfSecond{0};
     
-    int m_timeAccuracy;
-    bool m_clockFailure;
-    bool m_leapSecondKnown;
-    bool m_clockNotSynchronized;
+    int m_timeAccuracy{0};
+    bool m_clockFailure{false};
+    bool m_leapSecondKnown{false};
+    bool m_clockNotSynchronized{false};
 };
 
 class HnzPivotObject
@@ -130,12 +130,20 @@ public:
 
     void addTimestamp(unsigned long doTs, bool doTsS);
 
+
+
     void addQuality(unsigned int doValid, bool doOutdated, bool doTsC, bool doTsS);
     void addTmOrg(bool substituted);
     void addTmValidity(bool invalid);
 
+    HnzPivotClass getPivotClass() const;
+
     Datapoint* toDatapoint() {return m_dp;}
 
+    std::vector<Datapoint *> toHnzTMObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const;
+    void toHnzValidityObject(std::vector<Datapoint *> &dps) const;
+    std::vector<Datapoint *> toHnzTSObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const;
+    std::vector<Datapoint *> toHnzObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const;
     std::vector<Datapoint*> toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const;
 
     const std::string& getIdentifier() const {return m_identifier;}
@@ -165,7 +173,6 @@ public:
     static std::string HnzPivotClassStr(HnzPivotClass pivotClass);
 
 private:
-
     Datapoint* getCdc(Datapoint* dp);
     bool readBool(Datapoint* dp, const std::string& name, bool& out) const;
     void handleGTIX();
@@ -203,6 +210,7 @@ private:
     bool m_timestampInvalid = false;
 
     long intVal = 0;
+    
 };
 
 #endif /* _HNZ_PIVOT_OBJECT_H */

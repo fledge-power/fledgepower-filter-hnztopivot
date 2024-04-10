@@ -29,6 +29,7 @@ TEST(PivotHNZPluginConfig, PivotConfigValid)
 						{
 							"name" : "hnzip",
 							"address" : "511",
+							"station": "12",
 							"typeid" : "TS"
 						}
 					]
@@ -51,6 +52,7 @@ TEST(PivotHNZPluginConfig, PivotConfigValid)
 						{
 							"name" : "hnzip",
 							"address" : "512",
+							"station": "12",
 							"typeid" : "TM"
 						}
 					]
@@ -126,6 +128,7 @@ TEST(PivotHNZPluginConfig, PivotConfigMsgAddressOutOfRange)
 						{
 							"name" : "hnzip",
 							"address" : "9999999999",
+							"station" : "12",
 							"typeid" : "TS"
 						}
 					]
@@ -162,6 +165,7 @@ TEST(PivotHNZPluginConfig, PivotConfigReconfigure)
 						{
 							"name" : "hnzip",
 							"address" : "511",
+							"station" : "12",
 							"typeid" : "TS"
 						}
 					]
@@ -184,6 +188,7 @@ TEST(PivotHNZPluginConfig, PivotConfigReconfigure)
 						{
 							"name" : "hnzip",
 							"address" : "512",
+							"station" : "12",
 							"typeid" : "TM"
 						}
 					]

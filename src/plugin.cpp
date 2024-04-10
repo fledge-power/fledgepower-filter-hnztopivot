@@ -63,6 +63,7 @@ static const char *default_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "511",
+                                "station" : "12",
                                 "typeid" : "TS"
                             }
                         ]
@@ -85,6 +86,7 @@ static const char *default_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "512",
+                                "station" : "12",
                                 "typeid" : "TM"
                             }
                         ]

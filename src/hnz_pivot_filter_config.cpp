@@ -16,8 +16,8 @@
 
 
 HNZPivotDataPoint::HNZPivotDataPoint(const std::string& label, const std::string& pivotId, const std::string& pivotType,
-                                    const std::string& typeIdStr, unsigned int address):
-    m_label(label), m_pivotId(pivotId), m_pivotType(pivotType), m_typeIdStr(typeIdStr), m_address(address)
+                                    const std::string& typeIdStr, unsigned int address, unsigned int station):
+    m_label(label), m_pivotId(pivotId), m_pivotType(pivotType), m_typeIdStr(typeIdStr), m_address(address), m_station(station)
 {}
 
 void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
@@ -26,6 +26,7 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
   bool is_complete = true;
 
   m_exchangeDefinitions.clear();
+  m_exchangeDefinitionsLabel.clear();
   m_pivotIdLookup.clear();
 
   rapidjson::Document document;
@@ -70,23 +71,42 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
       if (protocol_name != HNZ_NAME) continue;
 
       std::string address;
+      std::string station;
       std::string msg_code;
 
       is_complete &= m_retrieve(protocol, MESSAGE_ADDRESS, &address);
+      is_complete &= m_retrieve(protocol, MESSAGE_STATION, &station);
       is_complete &= m_retrieve(protocol, MESSAGE_CODE, &msg_code);
       
+      auto checkInt = [](unsigned long tmp) -> bool {
+        return tmp > static_cast<unsigned int>(-1);
+      };
+
+      const auto error_msg = "Error with the field %s, the value is out of range for unsigned integer: %ld";
       unsigned long tmp = std::stoul(address);
       unsigned int msg_address = 0;
       // Check if number is in range for unsigned int
-      if (tmp > static_cast<unsigned int>(-1)) {
+      if (checkInt(tmp)) {
         is_complete = false;
-        HnzPivotUtility::log_error("Error with the field %s, the value is out of range for unsigned integer: %ld", MESSAGE_ADDRESS, tmp);
+        HnzPivotUtility::log_error(error_msg, MESSAGE_ADDRESS, tmp);
       } else {
         msg_address = static_cast<unsigned int>(tmp);
       }
-      auto newDp = std::make_shared<HNZPivotDataPoint>(label, pivotId, pivotType, msg_code, msg_address);
+
+      tmp = std::stoul(station);
+      unsigned int msg_station = 0; 
+      if (checkInt(tmp)) {
+        is_complete = false;
+        HnzPivotUtility::log_error(error_msg, MESSAGE_STATION, tmp);
+      } else {
+        msg_station = static_cast<unsigned int>(tmp);
+      }
+
+      auto newDp = std::make_shared<HNZPivotDataPoint>(label, pivotId, pivotType, msg_code, msg_address, msg_station);
       m_exchangeDefinitions[pivotId] = newDp;
       m_pivotIdLookup[m_getLookupHash(msg_code, msg_address)] = pivotId;
+      m_pivotIdLookup[m_getLookupHash(msg_code, msg_station)] = pivotId;
+      m_exchangeDefinitionsLabel[label] = newDp;
     }
   }
 
@@ -208,6 +228,17 @@ std::string HNZPivotConfig::findPivotId(const std::string& typeIdStr, unsigned i
 const std::string& HNZPivotConfig::getPluginName() {
   static std::string pluginName(FILTER_NAME);
   return pluginName;
+}
+
+HNZPivotDataPoint *HNZPivotConfig::getExchangeDefinitionsByLabel(const std::string& label)
+{
+    auto it = m_exchangeDefinitionsLabel.find(label);
+    if (it != m_exchangeDefinitionsLabel.end()) {
+        return it->second.get();
+    }
+    else {
+        return nullptr;
+    }
 }
 
 std::string HNZPivotConfig::m_getLookupHash(const std::string& typeIdStr, unsigned int address) const {

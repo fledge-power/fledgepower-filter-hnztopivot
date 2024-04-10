@@ -40,6 +40,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "511",
+                                 "station": "12",
                                 "typeid" : "TS"
                             }
                         ]
@@ -52,6 +53,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "522",
+                                 "station": "12",
                                 "typeid" : "TS"
                             }
                         ]
@@ -64,6 +66,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "577",
+                                 "station": "12",
                                 "typeid" : "TS"
                             }
                         ]
@@ -76,6 +79,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "544",
+                                 "station": "12",
                                 "typeid" : "TS"
                             }
                         ]
@@ -88,6 +92,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "20",
+                                 "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -100,6 +105,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "21",
+                                 "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -112,6 +118,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "22",
+                                 "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -124,6 +131,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "23",
+                                "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -136,6 +144,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "24",
+                                "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -148,6 +157,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "142",
+                                "station": "12",
                                 "typeid" : "TC"
                             }
                         ]
@@ -160,6 +170,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "143",
+                                "station": "12",
                                 "typeid" : "TC"
                             }
                         ]
@@ -172,6 +183,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "144",
+                                "station": "12",
                                 "typeid" : "TC"
                             }
                         ]
@@ -184,6 +196,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "31",
+                                "station": "12",
                                 "typeid" : "TVC"
                             }
                         ]
@@ -196,7 +209,60 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "30",
+                                "station": "12",
                                 "typeid" : "TVC"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TMA1",
+                        "pivot_id" : "ID444111",
+                        "pivot_type" : "MvTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "44",
+                                "station": "12",
+                                "typeid" : "TM"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TMA2",
+                        "pivot_id" : "ID444222",
+                        "pivot_type" : "MvTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "45",
+                                "station": "12",
+                                "typeid" : "TM"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TMA3",
+                        "pivot_id" : "ID444333",
+                        "pivot_type" : "MvTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "46",
+                                "station": "12",
+                                "typeid" : "TM"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TSCE1",
+                        "pivot_id" : "ID555111",
+                        "pivot_type" : "DpsTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "46",
+                                "station": "12",
+                                "typeid" : "TS"
                             }
                         ]
                     }
@@ -215,6 +281,12 @@ static Datapoint dummyDataPoint({}, dummyValue);
 static const std::vector<std::string> allCommandAttributeNames = {
     "co_type", "co_addr", "co_value"
 };
+
+static const std::vector<std::string> allHnzAttributeNames = {
+    "do_type", "do_station", "do_addr", "do_valid","do_an","do_value","do_outdated", "do_cg","do_ts","do_ts_iv","do_ts_c","do_ts_s"
+};
+
+
 static const std::vector<std::string> allPivotAttributeNames = {
     // TS messages
     "GTIS.ComingFrom", "GTIS.Identifier", "GTIS.Cause.stVal", "GTIS.TmValidity.stVal", "GTIS.TmOrg.stVal",
@@ -1628,6 +1700,322 @@ TEST_F(PivotHNZPluginIngest, PivotToTVC)
         {"co_addr", {"int64_t", "31"}},
         {"co_value", {"int64_t", "42"}},
     });
+    if(HasFatalFailure()) return;
+}
+
+    // TC/TVC messages
+    // "GTIM.ComingFrom", "GTIM.Identifier", "GTIM.Cause.stVal", "GTIM.TmValidity.stVal", "GTIM.TmOrg.stVal",
+    // "GTIM.MvTyp.mag.i", "GTIM.MvTyp.q.Validity", "GTIM.MvTyp.q.DetailQuality.oldData",
+    // "GTIM.MvTyp.t.SecondSinceEpoch", "GTIM.MvTyp.t.FractionOfSecond", "GTIM.MvTyp.t.TimeQuality.clockNotSynchronized",
+
+TEST_F(PivotHNZPluginIngest, PivotToTMA)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+            "PIVOT": {
+                "GTIM": {
+                    "ComingFrom": "hnzip",
+                    "Cause": {
+                        "stVal":1
+                    },
+                    "MvTyp": {
+                        "mag": {
+                            "i": -42
+                        },
+                        "q": {
+                            "Validity": "good"
+                        },
+                        "t": {
+                            "FractionOfSecond": 9529458,
+                            "SecondSinceEpoch": 1669714185
+                        },
+                        "ctlVal": -42
+                    },
+                    "Identifier": "ID444111",
+                    "TmOrg": {
+                        "stVal": "substituted"
+                    }
+                }
+            }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TM"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "44"}},
+        {"do_value", {"int64_t", "-42"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_an", {"string", "TMA"}},
+        {"do_outdated", {"int64_t", "0"}}
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTM8)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+            "PIVOT": {
+                "GTIM": {
+                    "ComingFrom": "hnzip",
+                    "Cause": {
+                        "stVal":1
+                    },
+                    "MvTyp": {
+                        "mag": {
+                            "i": 142
+                        },
+                        "q": {
+                            "Validity": "invalid"
+                        },
+                        "t": {
+                            "FractionOfSecond": 9529458,
+                            "SecondSinceEpoch": 1669714185
+                        },
+                        "ctlVal": 142
+                    },
+                    "Identifier": "ID444222",
+                    "TmOrg": {
+                        "stVal": "substituted"
+                    }
+                }
+            }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TM"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "45"}},
+        {"do_value", {"int64_t", "142"}},
+        {"do_valid", {"int64_t", "1"}},
+        {"do_an", {"string", "TM8"}},
+        {"do_outdated", {"int64_t", "1"}}
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTM16)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+            "PIVOT": {
+                "GTIM": {
+                    "ComingFrom": "hnzip",
+                    "Cause": {
+                        "stVal":1
+                    },
+                    "MvTyp": {
+                        "mag": {
+                            "i": 300
+                        },
+                        "q": {
+                            "Validity": "questionable"
+                        },
+                        "t": {
+                            "FractionOfSecond": 9529458,
+                            "SecondSinceEpoch": 1669714185
+                        },
+                        "ctlVal": 300
+                    },
+                    "Identifier": "ID444333",
+                    "TmOrg": {
+                        "stVal": "substituted"
+                    }
+                }
+            }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TM"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "46"}},
+        {"do_value", {"int64_t", "300"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_an", {"string", "TM16"}},
+        {"do_outdated", {"int64_t", "1"}}
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTSCE)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+        "PIVOT": {
+            "GTIS": {
+                "ComingFrom": "hnzip",
+                "Cause": {
+                    "stVal":3
+                },
+                "SpsTyp": {
+                    "q": {
+                        "Validity": "good"
+                    },
+                    "t": {
+                        "FractionOfSecond": 9529458,
+                        "SecondSinceEpoch": 1669714185,
+                        "TimeQuality": {
+                        "clockNotSynchronized": 0
+                        }
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID555111",
+                "TmOrg": {
+                    "stVal": "genuine"
+                },
+                "TmValidity": {
+                    "stVal": "good"
+                }
+            }
+        }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TS"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "46"}},
+        {"do_value", {"int64_t", "1"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_cg", {"int64_t", "0"}},
+        {"do_outdated", {"int64_t", "0"}},
+        {"do_ts", {"int64_t", "1669714185568"}},
+        {"do_ts_iv", {"int64_t", "0"}},
+        {"do_ts_c", {"int64_t", "0"}},
+        {"do_ts_s", {"int64_t", "0"}}
+    });
+
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTSCEBadTmValidity)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+        "PIVOT": {
+            "GTIS": {
+                "ComingFrom": "hnzip",
+                "Cause": {
+                    "stVal":3
+                },
+                "SpsTyp": {
+                    "q": {
+                        "Validity": "good"
+                    },
+                    "t": {
+                        "FractionOfSecond": 9529458,
+                        "SecondSinceEpoch": 1669714185,
+                        "TimeQuality": {
+                        "clockNotSynchronized": 0
+                        }
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID555111",
+                "TmOrg": {
+                    "stVal": "genuine"
+                },
+                "TmValidity": {
+                    "stVal": "bad"
+                }
+            }
+        }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TS"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "46"}},
+        {"do_value", {"int64_t", "1"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_cg", {"int64_t", "0"}},
+        {"do_outdated", {"int64_t", "0"}},
+        {"do_ts", {"int64_t", "1669714185568"}},
+        {"do_ts_iv", {"int64_t", "1"}},
+        {"do_ts_c", {"int64_t", "0"}},
+        {"do_ts_s", {"int64_t", "0"}}
+    });
+
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTSCG)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+        "PIVOT": {
+            "GTIS": {
+                "ComingFrom": "hnzip",
+                "Cause": {
+                    "stVal":20
+                },
+                "SpsTyp": {
+                    "q": {
+                        "Validity": "good"
+                    },
+                    "t": {
+                        "FractionOfSecond": 9529458,
+                        "SecondSinceEpoch": 1669714185,
+                        "TimeQuality": {
+                            "clockNotSynchronized": 0
+                        }
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID555111",
+                "TmValidity": {
+                    "stVal": "good"
+                }
+            }
+        }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TS"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "46"}},
+        {"do_value", {"int64_t", "1"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_cg", {"int64_t", "1"}},
+        {"do_outdated", {"int64_t", "0"}},
+    });
+
     if(HasFatalFailure()) return;
 }
 
