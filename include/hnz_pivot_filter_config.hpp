@@ -30,11 +30,55 @@ constexpr char PROTOCOLS[] = "protocols";
 constexpr char HNZ_NAME[] = "hnzip";
 constexpr char MESSAGE_CODE[] = "typeid";
 constexpr char MESSAGE_ADDRESS[] = "address";
+constexpr char MESSAGE_STATION[] = "station";
+
+/**
+ * @brief Checks if a string can be converted to an unsigned integer value.
+ * 
+ * This function attempts to convert the given string to an unsigned integer using std::stoul().
+ * If the conversion succeeds and the resulting value is less than the maximum value representable
+ * by an unsigned integer, it returns true; otherwise, it logs an error and returns false.
+ * 
+ * @param tmp The string to be converted.
+ * @return True if the string can be converted to an unsigned integer, false otherwise.
+ */
+bool canConvertToUnsignedInt(const std::string& tmp);
+
+/**
+ * @brief Converts a string to an unsigned integer value.
+ * 
+ * This function first checks if the string can be converted to an unsigned integer using canConvertToUnsignedInt().
+ * If the conversion is successful, it assigns the converted value to the 'value' parameter and returns true.
+ * Otherwise, it logs an error and returns false.
+ * 
+ * @param tmp The string to be converted.
+ * @param error_msg The error message to be logged in case of conversion failure.
+ * @param msg Additional message to be logged in case of conversion failure.
+ * @param value Reference to an unsigned integer where the converted value will be stored.
+ * @return True if the string was successfully converted to an unsigned integer, false otherwise.
+ */
+bool convertToUnsignedInt(const std::string & tmp,const char *error_msg,const char *msg, unsigned int& value);
 
 class HNZPivotDataPoint
 {
 public:
-    HNZPivotDataPoint(const std::string& label, const std::string& pivotId, const std::string& pivotType, const std::string& typeIdStr, unsigned int address);
+    /**
+    * @brief Constructor of the HNZPivotDataPoint class.
+    *
+    * @param label The label of the data point.
+    * @param pivotId The pivot identifier.
+    * @param pivotType The type of the pivot.
+    * @param typeIdStr The type identifier as string.
+    * @param address The address of the data point.
+    * @param station The station associated with the data point.
+    */
+    HNZPivotDataPoint(
+    const std::string& label,
+    const std::string& pivotId,
+    const std::string& pivotType,
+    const std::string& typeIdStr,
+    unsigned int address,
+    unsigned int station);
 
     const std::string& getLabel() const {return m_label;}
     const std::string& getPivotId() const {return m_pivotId;}
@@ -42,13 +86,20 @@ public:
     const std::string& getTypeId() const {return m_typeIdStr;}
     unsigned int getAddress() const {return m_address;}
 
+    /**
+    * @brief Retrieves the station associated with the data point.
+    *
+    * @return The station associated with the data point.
+    */
+    unsigned int getStation() const {return m_station;}
 private:
     std::string  m_label;
     std::string  m_pivotId;
     std::string  m_pivotType;
 
     std::string  m_typeIdStr;
-    unsigned int m_address;
+    unsigned int m_address{0};
+    unsigned int m_station{0};
 };
 
 class HNZPivotConfig

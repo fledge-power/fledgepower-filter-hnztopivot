@@ -121,11 +121,14 @@ Datapoint* HNZPivotFilter::convertDatapointToPivot(const std::string& assetName,
 {
     Datapoint* convertedDatapoint = nullptr;
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - " + assetName + " - HNZPivotFilter::convertDatapointToPivot -";
-
+    HnzPivotUtility::log_debug("%s Convert datapoint to pivot", beforeLog.c_str());
     DatapointValue& dpv = sourceDp->getData();
 
-    if (dpv.getType() != DatapointValue::T_DP_DICT)
+    if (dpv.getType() != DatapointValue::T_DP_DICT) 
+    {
+        HnzPivotUtility::log_error("%s Datapoint is not DP_DICY type", beforeLog.c_str());
         return nullptr;
+    }
 
     const std::vector<Datapoint*>* datapoints = dpv.getDpVec();
     std::map<std::string, bool> attributeFound = {
@@ -189,7 +192,9 @@ Datapoint* HNZPivotFilter::convertDatapointToPivot(const std::string& assetName,
 
     //NOTE: when doValue is missing for a TS or TM, we are converting a quality reading
     
+     HnzPivotUtility::log_debug("%s Convert : %s", beforeLog.c_str(), dataObject.doType.c_str());
     if (dataObject.doType == "TS") {
+       
         convertedDatapoint = convertTSToPivot(assetName, attributeFound, dataObject, exchangeConfig);
     }
     else if (dataObject.doType  == "TM") {
@@ -240,7 +245,7 @@ Datapoint* HNZPivotFilter::convertTSToPivot(const std::string& assetName, std::m
         }
         if (!attributeFound["do_ts_s"]) {
             HnzPivotUtility::log_warn("%s Missing attribute do_ts_s in TS CE", beforeLog.c_str());
-        }
+        } 
     }
     if (!attributeFound["do_outdated"]) {
         HnzPivotUtility::log_warn("%s Missing attribute do_outdated in TS", beforeLog.c_str());
@@ -409,7 +414,11 @@ std::vector<Datapoint*> HNZPivotFilter::convertDatapointToHNZ(const std::string&
             return convertedDatapoints;
         }
         auto exchangeConfig = exchangeData[pivotId];
+        if(pivotObject.getPivotClass() == HnzPivotObject::HnzPivotClass::GTIM || pivotObject.getPivotClass() == HnzPivotObject::HnzPivotClass::GTIS) {
+            convertedDatapoints = pivotObject.toHnzObject(exchangeConfig);
+        } else {
         convertedDatapoints = pivotObject.toHnzCommandObject(exchangeConfig);
+        }
     }
     catch (HnzPivotObjectException& e)
     {
@@ -420,8 +429,10 @@ std::vector<Datapoint*> HNZPivotFilter::convertDatapointToHNZ(const std::string&
 }
 
 bool HNZPivotFilter::convertDatapoint(const std::string& assetName, Datapoint* dp, std::vector<Datapoint*>& convertedDatapoints) {
-    std::string beforeLog = HNZPivotConfig::getPluginName() + " - HNZPivotFilter::processDatapoint -";
+    std::string beforeLog = HNZPivotConfig::getPluginName() + " - HNZPivotFilter::convertDatapoint -";
+    HnzPivotUtility::log_debug("%s convert datapoint %s", beforeLog.c_str(),dp->getName().c_str());
     if (dp->getName() == "data_object") {
+        HnzPivotUtility::log_debug("%s Convert data_object to pivot", beforeLog.c_str());
         Datapoint* convertedDp = convertDatapointToPivot(assetName, dp);
 
         if (convertedDp) {
@@ -433,6 +444,7 @@ bool HNZPivotFilter::convertDatapoint(const std::string& assetName, Datapoint* d
         }
     }
     else if (dp->getName() == "PIVOT") {
+        HnzPivotUtility::log_debug("%s Convert pivot to hnz", beforeLog.c_str());
         std::vector<Datapoint*> convertedDps = convertDatapointToHNZ(assetName, dp);
 
         if (!convertedDps.empty()) {
@@ -456,13 +468,17 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
 {
     std::lock_guard<std::recursive_mutex> guard(m_configMutex);
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - HNZPivotFilter::ingest -";
+    HnzPivotUtility::log_debug("%s HNZPivotFilter::ingest", beforeLog.c_str());
+    
     if (!isEnabled()) {
+        HnzPivotUtility::log_info("%s Filter is disabled", beforeLog.c_str());
         return;
     }
     if (!readingSet) {
         HnzPivotUtility::log_error("%s No reading set provided", beforeLog.c_str());
         return;
     }
+
     /* apply transformation */
     std::vector<Reading*>* readings = readingSet->getAllReadingsPtr();
 
@@ -470,16 +486,20 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
 
     auto readIt = readings->begin();
 
+    std::vector<Datapoint*> convertedDatapoints;
+
     while(readIt != readings->end())
     {
         Reading* reading = *readIt;
-
+        if (reading == nullptr) {
+            HnzPivotUtility::log_debug("%s reading is empty: %s", beforeLog.c_str());
+            readIt++;
+            continue;
+        }
         std::string assetName = reading->getAssetName();
         beforeLog = HNZPivotConfig::getPluginName() + " - " + assetName + " - HNZPivotFilter::ingest -";
 
         const std::vector<Datapoint*>& datapoints = reading->getReadingData();
-
-        std::vector<Datapoint*> convertedDatapoints;
 
         HnzPivotUtility::log_debug("%s original Reading: %s", beforeLog.c_str(), reading->toJSON().c_str());
 
@@ -488,10 +508,8 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
             success &= convertDatapoint(assetName, dp, convertedDatapoints);
         }
 
-        if (success) {
-            if (assetName == "PivotCommand") {
+        if (success && assetName == "PivotCommand") {
                 reading->setAssetName("HNZCommand");
-            }
         }
 
         reading->removeAllDatapoints();
@@ -500,7 +518,7 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
             reading->addDatapoint(convertedDatapoint);
         }
 
-        HnzPivotUtility::log_debug("%s converted Reading: %s", beforeLog.c_str(), reading->toJSON().c_str());
+        HnzPivotUtility::log_debug("%s Converted Reading: %s", beforeLog.c_str(), reading->toJSON().c_str());
 
         if (reading->getReadingData().empty()) {
             readIt = readings->erase(readIt);
@@ -520,6 +538,10 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
         else {
             HnzPivotUtility::log_error("%s No function to call, discard %lu converted readings", beforeLog.c_str(), readings->size());
         }
+    }
+    else 
+    {
+        HnzPivotUtility::log_debug("%s No converted datapoint", beforeLog.c_str());
     }
 }
 
