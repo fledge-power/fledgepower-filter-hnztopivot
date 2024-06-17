@@ -16,6 +16,7 @@
 #include <mutex>
 #include <filter.h>
 #include <config_category.h>
+#include "hnz_pivot_object.hpp"
 
 class Datapoint;
 class HNZPivotConfig;

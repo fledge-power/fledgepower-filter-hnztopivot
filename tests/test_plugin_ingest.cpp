@@ -22,6 +22,8 @@ extern "C" {
     void plugin_ingest(PLUGIN_HANDLE handle, READINGSET *readingSet);
 };
 
+
+
 static const std::string test_config = QUOTE({
     "enable" :{
         "value": "true"
@@ -40,6 +42,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "511",
+                                 "station": "12",
                                 "typeid" : "TS"
                             }
                         ]
@@ -52,6 +55,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "522",
+                                 "station": "12",
                                 "typeid" : "TS"
                             }
                         ]
@@ -64,8 +68,28 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "577",
+                                 "station": "12",
                                 "typeid" : "TS"
                             }
+                        ]
+                    },
+                    {
+                        "label": "3CBO.1_SS.1.12",
+                        "pivot_id": "C59806956",
+                        "pivot_type": "DpcTyp",
+                        "protocols": [
+                        {
+                        "name": "hnzip",
+                        "typeid": "TC",
+                        "address": "0064",
+                        "station": "12"
+                        },
+                        {
+                        "name": "iec104",
+                        "address": "16837-3194932",
+                        "typeid": "C_DC_TA_1",
+                        "gi_groups": "station"
+                        }
                         ]
                     },
                     {
@@ -76,6 +100,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "544",
+                                 "station": "12",
                                 "typeid" : "TS"
                             }
                         ]
@@ -88,6 +113,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "20",
+                                 "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -100,6 +126,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "21",
+                                 "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -112,6 +139,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "22",
+                                "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -124,6 +152,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "23",
+                                "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -136,6 +165,20 @@ static const std::string test_config = QUOTE({
                             {
                                 "name" : "hnzip",
                                 "address" : "24",
+                                "station": "12",
+                                "typeid" : "TM"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TM6",
+                        "pivot_id" : "M61850679",
+                        "pivot_type" : "SpsTyp",
+                        "protocols" : [
+                            {
+                                "name" : "hnzip",
+                                "address" : "24",
+                                "station": "12",
                                 "typeid" : "TM"
                             }
                         ]
@@ -148,10 +191,12 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "142",
+                                "station": "12",
                                 "typeid" : "TC"
                             }
                         ]
                     },
+                    
                     {
                         "label" : "TC2",
                         "pivot_id" : "ID222222",
@@ -160,6 +205,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "143",
+                                "station": "12",
                                 "typeid" : "TC"
                             }
                         ]
@@ -172,6 +218,20 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "144",
+                                "station": "12",
+                                "typeid" : "TC"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TC4",
+                        "pivot_id" : "C13331951",
+                        "pivot_type" : "BscTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "144",
+                                "station": "12",
                                 "typeid" : "TC"
                             }
                         ]
@@ -184,6 +244,7 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "31",
+                                "station": "12",
                                 "typeid" : "TVC"
                             }
                         ]
@@ -196,7 +257,98 @@ static const std::string test_config = QUOTE({
                             {
                                 "name": "hnzip",
                                 "address" : "30",
+                                "station": "12",
                                 "typeid" : "TVC"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TMA1",
+                        "pivot_id" : "ID444111",
+                        "pivot_type" : "MvTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "44",
+                                "station": "12",
+                                "typeid" : "TM"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TMA2",
+                        "pivot_id" : "ID444222",
+                        "pivot_type" : "MvTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "45",
+                                "station": "12",
+                                "typeid" : "TM"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TMA3",
+                        "pivot_id" : "ID444333",
+                        "pivot_type" : "MvTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "46",
+                                "station": "12",
+                                "typeid" : "TM"
+                            }
+                        ]
+                    },
+                    {
+                        "label" : "TSCE1",
+                        "pivot_id" : "ID555111",
+                        "pivot_type" : "DpsTyp",
+                        "protocols" : [
+                            {
+                                "name": "hnzip",
+                                "address" : "46",
+                                "station": "12",
+                                "typeid" : "TS"
+                            }
+                        ]
+                    },
+                    {
+                        "label": "3CBO.1_U.1.1",
+                        "pivot_id": "M10480275",
+                        "pivot_type": "MvTyp",
+                        "protocols": [
+                        {
+                            "name": "hnzip",
+                            "typeid": "TM",
+                            "address": "0004",
+                            "station": "12"
+                        },
+                        {
+                            "name": "iec104",
+                            "address": "16837-3197884",
+                            "typeid": "M_ME_NA_1",
+                            "gi_groups": "station"
+                        }
+                        ]
+                    },
+                    {
+                        "label": "3CBO.1_DF.CONTI",
+                        "pivot_id": "S47041674",
+                        "pivot_type": "SpsTyp",
+                        "protocols": [
+                            {
+                                "name": "hnzip",
+                                "typeid": "TS",
+                                "address": "0143",
+                                "station": "12"
+                            },
+                            {
+                                "name": "iec104",
+                                "address": "16837-3199091",
+                                "typeid": "M_SP_TB_1",
+                                "gi_groups": "station"
                             }
                         ]
                     }
@@ -205,6 +357,7 @@ static const std::string test_config = QUOTE({
         }
     }
 });
+
 
 static int outputHandlerCalled = 0;
 static std::shared_ptr<Reading> lastReading = nullptr;
@@ -215,6 +368,12 @@ static Datapoint dummyDataPoint({}, dummyValue);
 static const std::vector<std::string> allCommandAttributeNames = {
     "co_type", "co_addr", "co_value"
 };
+
+static const std::vector<std::string> allHnzAttributeNames = {
+    "do_type", "do_station", "do_addr", "do_valid","do_an","do_value","do_outdated", "do_cg","do_ts","do_ts_iv","do_ts_c","do_ts_s"
+};
+
+
 static const std::vector<std::string> allPivotAttributeNames = {
     // TS messages
     "GTIS.ComingFrom", "GTIS.Identifier", "GTIS.Cause.stVal", "GTIS.TmValidity.stVal", "GTIS.TmOrg.stVal",
@@ -1555,6 +1714,74 @@ TEST_F(PivotHNZPluginIngest, PivotToTC)
     if(HasFatalFailure()) return;
 }
 
+TEST_F(PivotHNZPluginIngest, PivotToTCNoQuality)
+{
+    std::string jsonMessagePivotTC = QUOTE({
+        "PIVOT": {
+            "GTIC": {
+                "SpcTyp": {
+                    "t": {
+                        "FractionOfSecond": 9529458,
+                        "SecondSinceEpoch": 1669714185
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID222111",
+                "TmOrg": {
+                    "stVal": "substituted"
+                }
+            }
+        }
+    });
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTC);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allCommandAttributeNames, {
+        {"co_type", {"string", "TC"}},
+        {"co_addr", {"int64_t", "142"}},
+        {"co_value", {"int64_t", "1"}},
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTCNoTime)
+{
+    std::string jsonMessagePivotTC = QUOTE({
+        "PIVOT": {
+            "GTIC": {
+                "SpcTyp": {
+                    "q": {
+                        "Source": "process",
+                        "Validity": "good"
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID222111",
+                "TmOrg": {
+                    "stVal": "substituted"
+                }
+            }
+        }
+    });
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTC);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allCommandAttributeNames, {
+        {"co_type", {"string", "TC"}},
+        {"co_addr", {"int64_t", "142"}},
+        {"co_value", {"int64_t", "1"}},
+    });
+    if(HasFatalFailure()) return;
+}
+
 TEST_F(PivotHNZPluginIngest, PivotDoubleToTC)
 {
     std::string jsonMessagePivotTCDouble = QUOTE({
@@ -1628,6 +1855,322 @@ TEST_F(PivotHNZPluginIngest, PivotToTVC)
         {"co_addr", {"int64_t", "31"}},
         {"co_value", {"int64_t", "42"}},
     });
+    if(HasFatalFailure()) return;
+}
+
+    // TC/TVC messages
+    // "GTIM.ComingFrom", "GTIM.Identifier", "GTIM.Cause.stVal", "GTIM.TmValidity.stVal", "GTIM.TmOrg.stVal",
+    // "GTIM.MvTyp.mag.i", "GTIM.MvTyp.q.Validity", "GTIM.MvTyp.q.DetailQuality.oldData",
+    // "GTIM.MvTyp.t.SecondSinceEpoch", "GTIM.MvTyp.t.FractionOfSecond", "GTIM.MvTyp.t.TimeQuality.clockNotSynchronized",
+
+TEST_F(PivotHNZPluginIngest, PivotToTMA)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+            "PIVOT": {
+                "GTIM": {
+                    "ComingFrom": "hnzip",
+                    "Cause": {
+                        "stVal":1
+                    },
+                    "MvTyp": {
+                        "mag": {
+                            "i": -42
+                        },
+                        "q": {
+                            "Validity": "good"
+                        },
+                        "t": {
+                            "FractionOfSecond": 9529458,
+                            "SecondSinceEpoch": 1669714185
+                        },
+                        "ctlVal": -42
+                    },
+                    "Identifier": "ID444111",
+                    "TmOrg": {
+                        "stVal": "substituted"
+                    }
+                }
+            }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TM"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "44"}},
+        {"do_value", {"int64_t", "-42"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_an", {"string", "TMA"}},
+        {"do_outdated", {"int64_t", "0"}}
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTM8)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+            "PIVOT": {
+                "GTIM": {
+                    "ComingFrom": "hnzip",
+                    "Cause": {
+                        "stVal":1
+                    },
+                    "MvTyp": {
+                        "mag": {
+                            "i": 142
+                        },
+                        "q": {
+                            "Validity": "invalid"
+                        },
+                        "t": {
+                            "FractionOfSecond": 9529458,
+                            "SecondSinceEpoch": 1669714185
+                        },
+                        "ctlVal": 142
+                    },
+                    "Identifier": "ID444222",
+                    "TmOrg": {
+                        "stVal": "substituted"
+                    }
+                }
+            }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TM"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "45"}},
+        {"do_value", {"int64_t", "142"}},
+        {"do_valid", {"int64_t", "1"}},
+        {"do_an", {"string", "TM8"}},
+        {"do_outdated", {"int64_t", "1"}}
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTM16)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+            "PIVOT": {
+                "GTIM": {
+                    "ComingFrom": "hnzip",
+                    "Cause": {
+                        "stVal":1
+                    },
+                    "MvTyp": {
+                        "mag": {
+                            "i": 300
+                        },
+                        "q": {
+                            "Validity": "questionable"
+                        },
+                        "t": {
+                            "FractionOfSecond": 9529458,
+                            "SecondSinceEpoch": 1669714185
+                        },
+                        "ctlVal": 300
+                    },
+                    "Identifier": "ID444333",
+                    "TmOrg": {
+                        "stVal": "substituted"
+                    }
+                }
+            }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TM"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "46"}},
+        {"do_value", {"int64_t", "300"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_an", {"string", "TM16"}},
+        {"do_outdated", {"int64_t", "1"}}
+    });
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTSCE)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+        "PIVOT": {
+            "GTIS": {
+                "ComingFrom": "hnzip",
+                "Cause": {
+                    "stVal":3
+                },
+                "SpsTyp": {
+                    "q": {
+                        "Validity": "good"
+                    },
+                    "t": {
+                        "FractionOfSecond": 9529458,
+                        "SecondSinceEpoch": 1669714185,
+                        "TimeQuality": {
+                        "clockNotSynchronized": 0
+                        }
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID555111",
+                "TmOrg": {
+                    "stVal": "genuine"
+                },
+                "TmValidity": {
+                    "stVal": "good"
+                }
+            }
+        }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TS"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "46"}},
+        {"do_value", {"int64_t", "1"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_cg", {"int64_t", "0"}},
+        {"do_outdated", {"int64_t", "0"}},
+        {"do_ts", {"int64_t", "1669714185568"}},
+        {"do_ts_iv", {"int64_t", "0"}},
+        {"do_ts_c", {"int64_t", "0"}},
+        {"do_ts_s", {"int64_t", "0"}}
+    });
+
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTSCEBadTmValidity)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+        "PIVOT": {
+            "GTIS": {
+                "ComingFrom": "hnzip",
+                "Cause": {
+                    "stVal":3
+                },
+                "SpsTyp": {
+                    "q": {
+                        "Validity": "good"
+                    },
+                    "t": {
+                        "FractionOfSecond": 9529458,
+                        "SecondSinceEpoch": 1669714185,
+                        "TimeQuality": {
+                        "clockNotSynchronized": 0
+                        }
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID555111",
+                "TmOrg": {
+                    "stVal": "genuine"
+                },
+                "TmValidity": {
+                    "stVal": "bad"
+                }
+            }
+        }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TS"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "46"}},
+        {"do_value", {"int64_t", "1"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_cg", {"int64_t", "0"}},
+        {"do_outdated", {"int64_t", "0"}},
+        {"do_ts", {"int64_t", "1669714185568"}},
+        {"do_ts_iv", {"int64_t", "1"}},
+        {"do_ts_c", {"int64_t", "0"}},
+        {"do_ts_s", {"int64_t", "0"}}
+    });
+
+    if(HasFatalFailure()) return;
+}
+
+TEST_F(PivotHNZPluginIngest, PivotToTSCG)
+{
+    std::string jsonMessagePivotTMA = QUOTE({
+        "PIVOT": {
+            "GTIS": {
+                "ComingFrom": "hnzip",
+                "Cause": {
+                    "stVal":20
+                },
+                "SpsTyp": {
+                    "q": {
+                        "Validity": "good"
+                    },
+                    "t": {
+                        "FractionOfSecond": 9529458,
+                        "SecondSinceEpoch": 1669714185,
+                        "TimeQuality": {
+                            "clockNotSynchronized": 0
+                        }
+                    },
+                    "ctlVal": 1
+                },
+                "Identifier": "ID555111",
+                "TmValidity": {
+                    "stVal": "good"
+                }
+            }
+        }
+    });
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PivotCommand", jsonMessagePivotTMA);
+    if(HasFatalFailure()) return;
+    ASSERT_NE(readingSet, nullptr);
+
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(outputHandlerCalled, 1);
+    validateReading(lastReading, "HNZCommand", "", allHnzAttributeNames, {
+        {"do_type", {"string", "TS"}},
+        {"do_station",{"int64_t", "12"}},
+        {"do_addr", {"int64_t", "46"}},
+        {"do_value", {"int64_t", "1"}},
+        {"do_valid", {"int64_t", "0"}},
+        {"do_cg", {"int64_t", "1"}},
+        {"do_outdated", {"int64_t", "0"}},
+    });
+
     if(HasFatalFailure()) return;
 }
 
@@ -2341,3 +2884,407 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     });
     if(HasFatalFailure()) return;
 }
+
+
+TEST_F(PivotHNZPluginIngest, PivotC59806956)
+{
+std::string jsonMessagePivotLabelMismatch = QUOTE(
+{
+        "PIVOT": {
+            "GTIC": {
+                "ComingFrom": "iec104",
+                "DpcTyp": {
+                    "q": {
+                        "test": 0
+                    },
+                    "t": {
+                        "SecondSinceEpoch": 1718222768,
+                        "FractionOfSecond": 33554,
+                        "TimeQuality": {
+                            "clockFailure": 0,
+                            "leapSecondKnown": 1,
+                            "timeAccuracy": 10
+                        }
+                    }
+                },
+                "Identifier": "C59806956",
+                "Cause": {
+                    "stVal": 3
+                },
+                "Confirmation": {
+                    "stVal": 0
+                },
+                "TmOrg": {
+                    "stVal": "substituted"
+                }
+            }
+        }
+    }
+  );
+
+    PLUGIN_HANDLE handle = nullptr;
+    ASSERT_NO_THROW(handle = plugin_init(nullptr, nullptr, nullptr));
+    ASSERT_TRUE(handle != nullptr);
+    HNZPivotFilter* filter = static_cast<HNZPivotFilter*>(handle);
+    ASSERT_NO_THROW(plugin_reconfigure(static_cast<PLUGIN_HANDLE*>(handle), test_config));
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PIVOT", {jsonMessagePivotLabelMismatch});
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(readingSet->getCount(),1);
+}
+
+
+
+TEST_F(PivotHNZPluginIngest, PivotGTIS)
+{
+
+std::string jsonMessagePivotLabelMismatch = QUOTE(
+{"PIVOT": {
+        "GTIS": {
+            "ComingFrom": "iec104",
+            "SpsTyp": {
+                "q": {
+                    "Source": "process",
+                    "Validity": "invalid"
+                },
+                "t": {
+                    "SecondSinceEpoch": 1717771101,
+                    "FractionOfSecond": 7650410,
+                    "TimeQuality": {
+                        "clockFailure": 0,
+                        "leapSecondKnown": 1,
+                        "timeAccuracy": 10
+                    }
+                }
+            },
+            "Identifier": "S47041674",
+            "Cause": {
+                "stVal": 3
+            },
+            "Confirmation": {
+                "stVal": 0
+            },
+            "TmOrg": {
+                "stVal": "substituted"
+            }
+        }
+    }
+}
+
+);
+
+    PLUGIN_HANDLE handle = nullptr;
+    ASSERT_NO_THROW(handle = plugin_init(nullptr, nullptr, nullptr));
+    ASSERT_TRUE(handle != nullptr);
+    HNZPivotFilter* filter = static_cast<HNZPivotFilter*>(handle);
+    ASSERT_NO_THROW(plugin_reconfigure(static_cast<PLUGIN_HANDLE*>(handle), test_config));
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PIVOT", {jsonMessagePivotLabelMismatch});
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(readingSet->getCount(),1);
+}
+
+TEST_F(PivotHNZPluginIngest, PivotGTIM)
+{
+
+std::string jsonMessagePivotLabelMismatch = QUOTE(
+{
+    "PIVOT": {
+        "GTIM": {
+            "ComingFrom": "iec104",
+            "MvTyp": {
+                "q": {
+                    "Source": "process",
+                    "Validity": "invalid"
+                },
+                "mag": {
+                    "i": 10
+                },
+                "t": {
+                    "SecondSinceEpoch": 1718021731,
+                    "FractionOfSecond": 5033164,
+                    "TimeQuality": {
+                        "clockFailure": 0,
+                        "leapSecondKnown": 1,
+                        "timeAccuracy": 10
+                    }
+                }
+            },
+            "Identifier": "M61850679",
+            "Cause": {
+                "stVal": 3
+            },
+            "Confirmation": {
+                "stVal": 0
+            },
+            "TmOrg": {
+                "stVal": "substituted"
+            }
+        }
+    }
+}
+
+);
+
+    PLUGIN_HANDLE handle = nullptr;
+    ASSERT_NO_THROW(handle = plugin_init(nullptr, nullptr, nullptr));
+    ASSERT_TRUE(handle != nullptr);
+    HNZPivotFilter* filter = static_cast<HNZPivotFilter*>(handle);
+    ASSERT_NO_THROW(plugin_reconfigure(static_cast<PLUGIN_HANDLE*>(handle), test_config));
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PIVOT", {jsonMessagePivotLabelMismatch});
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(readingSet->getCount(),1);
+}
+
+TEST_F(PivotHNZPluginIngest, PivotGTIC)
+{
+
+std::string jsonMessagePivotLabelMismatch = QUOTE(
+{
+    "PIVOT": {
+        "GTIC": {
+            "ComingFrom": "iec104",
+            "SpcTyp": {
+                "q": {
+                    "test": 0
+                },
+                "t": {
+                    "SecondSinceEpoch": 1718022207,
+                    "FractionOfSecond": 12549357,
+                    "TimeQuality": {
+                        "clockFailure": 0,
+                        "leapSecondKnown": 1,
+                        "timeAccuracy": 10
+                    }
+                }
+            },
+            "Identifier": "C13331951",
+            "Cause": {
+                "stVal": 3
+            },
+            "Confirmation": {
+                "stVal": 0
+            },
+            "TmOrg": {
+                "stVal": "substituted"
+            }
+        }
+    }
+}
+
+);
+
+    PLUGIN_HANDLE handle = nullptr;
+    ASSERT_NO_THROW(handle = plugin_init(nullptr, nullptr, nullptr));
+    ASSERT_TRUE(handle != nullptr);
+    HNZPivotFilter* filter = static_cast<HNZPivotFilter*>(handle);
+    ASSERT_NO_THROW(plugin_reconfigure(static_cast<PLUGIN_HANDLE*>(handle), test_config));
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PIVOT", {jsonMessagePivotLabelMismatch});
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(readingSet->getCount(),1);
+}
+
+TEST_F(PivotHNZPluginIngest, PivotGTIM2)
+{
+
+std::string jsonMessagePivotLabelMismatch = QUOTE(
+{
+    "PIVOT": {
+        "GTIM": {
+            "ComingFrom": "iec104",
+            "MvTyp": {
+                "mag": {
+                    "f": 1.0
+                },
+                "q": {
+                    "Source": "process",
+                    "Validity": "good"
+                },
+                "t": {
+                    "SecondSinceEpoch": 1718263835,
+                    "FractionOfSecond": 13690208,
+                    "TimeQuality": {
+                        "clockFailure": 0,
+                        "leapSecondKnown": 1,
+                        "timeAccuracy": 10
+                    }
+                }
+            },
+            "Identifier": "M10480275",
+            "Cause": {
+                "stVal": 3
+            },
+            "TmOrg": {
+                "stVal": "substituted"
+            }
+        }
+    }
+}
+
+);
+
+    PLUGIN_HANDLE handle = nullptr;
+    ASSERT_NO_THROW(handle = plugin_init(nullptr, nullptr, nullptr));
+    ASSERT_TRUE(handle != nullptr);
+    HNZPivotFilter* filter = static_cast<HNZPivotFilter*>(handle);
+    ASSERT_NO_THROW(plugin_reconfigure(static_cast<PLUGIN_HANDLE*>(handle), test_config));
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PIVOT", {jsonMessagePivotLabelMismatch});
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(readingSet->getCount(),1);
+}
+
+
+TEST_F(PivotHNZPluginIngest, PivotGTIM3)
+{
+
+std::string jsonMessagePivotLabelMismatch = QUOTE(
+{
+  "PIVOT": {
+    "GTIM": {
+      "ComingFrom": "iec104",
+      "MvTyp": {
+        "mag": {
+          "f": 1
+        },
+        "q": {
+          "Source": "process",
+          "Validity": "good"
+        },
+        "t": {
+          "SecondSinceEpoch": 1718309214,
+          "FractionOfSecond": 2634022,
+          "TimeQuality": {
+            "clockFailure": 0,
+            "leapSecondKnown": 1,
+            "timeAccuracy": 10
+          }
+        }
+      },
+      "Identifier": "M10480275",
+      "Cause": {
+        "stVal": 20
+      },
+      "TmOrg": {
+        "stVal": "substituted"
+      }
+    }
+  }
+}
+
+);
+
+    PLUGIN_HANDLE handle = nullptr;
+    ASSERT_NO_THROW(handle = plugin_init(nullptr, nullptr, nullptr));
+    ASSERT_TRUE(handle != nullptr);
+    HNZPivotFilter* filter = static_cast<HNZPivotFilter*>(handle);
+    ASSERT_NO_THROW(plugin_reconfigure(static_cast<PLUGIN_HANDLE*>(handle), test_config));
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PIVOT", {jsonMessagePivotLabelMismatch});
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(readingSet->getCount(),1);
+}
+
+TEST_F(PivotHNZPluginIngest, PivotGTIM4)
+{
+
+std::string jsonMessagePivotLabelMismatch = QUOTE(
+{
+  "PIVOT": {
+    "GTIM": {
+      "ComingFrom": "iec104",
+      "MvTyp": {
+        "mag": {
+          "f": 1.0
+        },
+        "q": {
+          "Source": "process",
+          "Validity": "good"
+        },
+        "t": {
+          "SecondSinceEpoch": 1718309214,
+          "FractionOfSecond": 2634022,
+          "TimeQuality": {
+            "clockFailure": 0,
+            "leapSecondKnown": 1,
+            "timeAccuracy": 10
+          }
+        }
+      },
+      "Identifier": "M10480275",
+      "Cause": {
+        "stVal": 20
+      },
+      "TmOrg": {
+        "stVal": "substituted"
+      }
+    }
+  }
+}
+
+);
+
+    PLUGIN_HANDLE handle = nullptr;
+    ASSERT_NO_THROW(handle = plugin_init(nullptr, nullptr, nullptr));
+    ASSERT_TRUE(handle != nullptr);
+    HNZPivotFilter* filter = static_cast<HNZPivotFilter*>(handle);
+    ASSERT_NO_THROW(plugin_reconfigure(static_cast<PLUGIN_HANDLE*>(handle), test_config));
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PIVOT", {jsonMessagePivotLabelMismatch});
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(readingSet->getCount(),1);
+}
+
+TEST_F(PivotHNZPluginIngest, PivotGTIM5)
+{
+
+std::string jsonMessagePivotLabelMismatch = QUOTE(
+{
+  "PIVOT": {
+    "GTIM": {
+      "ComingFrom": "iec104",
+      "MvTyp": {
+        "mag": {
+          "f": 1.0
+        },
+        "q": {
+
+        },
+        "t": {
+
+          "TimeQuality": {
+
+          }
+        }
+      },
+
+      "Cause": {
+ 
+      },
+      "TmOrg": {
+      
+      }
+    }
+  }
+}
+
+);
+
+    PLUGIN_HANDLE handle = nullptr;
+    ASSERT_NO_THROW(handle = plugin_init(nullptr, nullptr, nullptr));
+    ASSERT_TRUE(handle != nullptr);
+    HNZPivotFilter* filter = static_cast<HNZPivotFilter*>(handle);
+    ASSERT_NO_THROW(plugin_reconfigure(static_cast<PLUGIN_HANDLE*>(handle), test_config));
+
+    ReadingSet* readingSet = nullptr;
+    createReadingSet(readingSet, "PIVOT", {jsonMessagePivotLabelMismatch});
+    ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
+    ASSERT_EQ(readingSet->getCount(),0);
+}
+

@@ -70,13 +70,13 @@ private:
 
     void handleTimeQuality(Datapoint* timeQuality);
 
-    int m_secondSinceEpoch;
-    int m_fractionOfSecond;
+    int m_secondSinceEpoch{0};
+    int m_fractionOfSecond{0};
     
-    int m_timeAccuracy;
-    bool m_clockFailure;
-    bool m_leapSecondKnown;
-    bool m_clockNotSynchronized;
+    int m_timeAccuracy{0};
+    bool m_clockFailure{false};
+    bool m_leapSecondKnown{false};
+    bool m_clockNotSynchronized{false};
 };
 
 class HnzPivotObject
@@ -134,7 +134,46 @@ public:
     void addTmOrg(bool substituted);
     void addTmValidity(bool invalid);
 
+    /**
+     * @brief Retrieves the pivot class associated with the data point.
+     *
+     * @return The pivot class associated with the data point.
+     */
+    HnzPivotClass getPivotClass() const;
+
     Datapoint* toDatapoint() {return m_dp;}
+
+    /**
+    * @brief Converts the data points to the tm hnz format.
+    *
+    * @param exchangeConfig The configuration for the exchange.
+    * @return A vector of pointers to Datapoint objects in HnzTMObject format.
+    */
+    std::vector<Datapoint *> toHnzTMObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const;
+
+    /**
+    * @brief Adds the validity to the hnz datapoint
+    *
+    * @param dps A reference to a vector of pointers to Datapoint objects.
+    *            This vector will be populated with the converted data points.
+    */
+    void toHnzValidityObject(std::vector<Datapoint *> &dps) const;
+
+    /**
+    * @brief Converts the data points to the ts hnz datapoint.
+    *
+    * @param exchangeConfig The configuration for the exchange.
+    * @return A vector of pointers to Datapoint objects in HnzTSObject format.
+    */
+    std::vector<Datapoint *> toHnzTSObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const;
+
+    /**
+     * @brief Converts the data points to HnzObject format (tm and ts).
+     *
+     * @param exchangeConfig The configuration for the exchange.
+     * @return A vector of pointers to Datapoint objects in HnzObject format.
+     */
+    std::vector<Datapoint *> toHnzObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const;
 
     std::vector<Datapoint*> toHnzCommandObject(std::shared_ptr<HNZPivotDataPoint> exchangeConfig) const;
 
@@ -173,6 +212,78 @@ private:
     void handleDetailQuality(Datapoint* detailQuality);
     void handleQuality(Datapoint* q);
 
+    /**
+     * @brief Handles the CDC SPS (System Phase Sequence) datapoint.
+     * 
+     * This function processes a CDC (Control Data Change) SPS datapoint.
+     * 
+     * @param cdc Pointer to the CDC datapoint containing the SPS data.
+     */
+    void handleCdcDps(Datapoint *cdc);
+
+    /**
+     * @brief Handles the CDC SPS (System Phase Sequence) datapoint.
+     * 
+     * This function processes a CDC (Control Data Change) SPS datapoint.
+     * 
+     * @param cdc Pointer to the CDC datapoint containing the SPS data.
+     */
+    void handleCdcSps(Datapoint *cdc);
+
+    /**
+     * @brief Handles the CDC MV (Measured Value) datapoint.
+     * 
+     * This function processes a CDC MV (Measured Value) datapoint.
+     * 
+     * @param cdc Pointer to the CDC datapoint containing the MV data.
+     */
+    void handleCdcMv(Datapoint *cdc);
+
+    /**
+     * @brief Handles the CDC SPC  datapoint.
+     * 
+     * This function processes a CDC SPC datapoint.
+     * 
+     * @param cdc Pointer to the CDC datapoint containing the SPC data.
+     */
+    void handleCdcSpc(Datapoint *cdc);
+
+    /**
+     * @brief Handles the CDC DPC  datapoint.
+     * 
+     * This function processes a CDC DPC  datapoint.
+     * 
+     * @param cdc Pointer to the CDC datapoint containing the DPC data.
+     */
+    void handleCdcDpc(Datapoint *cdc);
+
+    /**
+     * @brief Handles the CDC T (Time) datapoint.
+     * 
+     * This function processes a CDC T (Time) datapoint.
+     * 
+     * @param cdc Pointer to the CDC datapoint containing the T data.
+     */
+    void handleCdcT(Datapoint *cdc);
+
+    /**
+     * @brief Handles the CDC Q (Quality) datapoint.
+     * 
+     * This function processes a CDC Q (Quality) datapoint.
+     * 
+     * @param cdc Pointer to the CDC datapoint containing the Q data.
+     */
+    void handleCdcQ(Datapoint *cdc);
+
+    /**
+     * @brief Handles the CDC INC datapoint.
+     * 
+     * This function processes a CDC INC  datapoint.
+     * 
+     * @param cdc Pointer to the CDC datapoint containing the INC data.
+     */
+    void handleCdcInc(Datapoint *cdc);
+
     Datapoint* m_dp;
     Datapoint* m_ln;
     Datapoint* m_cdc;
@@ -203,6 +314,8 @@ private:
     bool m_timestampInvalid = false;
 
     long intVal = 0;
+
+    friend class HnzPivotObjectTest;
 };
 
 #endif /* _HNZ_PIVOT_OBJECT_H */
