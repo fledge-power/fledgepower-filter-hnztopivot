@@ -173,7 +173,7 @@ Datapoint* HNZPivotFilter::convertDatapointToPivot(const std::string& assetName,
     const std::string& pivotId = m_filterConfig->findPivotId(dataObject.doType, dataObject.doAddress);
     if (pivotId.empty()) {
         HnzPivotUtility::log_error("%s No pivot ID configured for typeid %s and address %u", //LCOV_EXCL_LINE
-                                    beforeLog.c_str(), dataObject.doType.c_str(), dataObject.doAddress);
+                                    beforeLog.c_str(), dataObject.doType.c_str(), dataObject.doAddress); //LCOV_EXCL_LINE
         return nullptr;
     }
     auto exchangeData = m_filterConfig->getExchangeDefinitions();
@@ -184,7 +184,7 @@ Datapoint* HNZPivotFilter::convertDatapointToPivot(const std::string& assetName,
     auto exchangeConfig = exchangeData[pivotId];
     if (!checkLabelMatch(assetName, exchangeConfig)) {
         HnzPivotUtility::log_warn("%s Input label (%s) does not match configured label (%s) for pivot ID: %s", //LCOV_EXCL_LINE
-                                    beforeLog.c_str(), assetName.c_str(), exchangeConfig->getLabel().c_str(), pivotId.c_str());   
+                                    beforeLog.c_str(), assetName.c_str(), exchangeConfig->getLabel().c_str(), pivotId.c_str());    //LCOV_EXCL_LINE
     }
 
     //NOTE: when doValue is missing for a TS or TM, we are converting a quality reading
@@ -219,7 +219,7 @@ Datapoint* HNZPivotFilter::convertTSToPivot(const std::string& assetName, std::m
     // Message structure checks
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
         HnzPivotUtility::log_error("%s Invalid pivot type (%s) for data object type (%s)", //LCOV_EXCL_LINE
-                                    beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
+                                    beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str()); //LCOV_EXCL_LINE
         return nullptr;
     }
     if (!attributeFound["do_valid"]) {
@@ -287,7 +287,7 @@ Datapoint* HNZPivotFilter::convertTMToPivot(const std::string& assetName, std::m
     // Message structure checks
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
         HnzPivotUtility::log_error("%s Invalid pivot type (%s) for data object type (%s)", //LCOV_EXCL_LINE
-                                    beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
+                                    beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str()); //LCOV_EXCL_LINE
         return nullptr;
     }
     if (!attributeFound["do_valid"]) {
@@ -343,7 +343,7 @@ Datapoint* HNZPivotFilter::convertTCACKToPivot(const std::string& assetName, std
     const std::string& pivotType = exchangeConfig->getPivotType();
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
         HnzPivotUtility::log_error("%s Invalid pivot type (%s) for data object type (%s)", //LCOV_EXCL_LINE
-                                    beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
+                                    beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str()); //LCOV_EXCL_LINE
         return nullptr;
     }
     if (!attributeFound["do_valid"]) {
@@ -371,7 +371,7 @@ Datapoint* HNZPivotFilter::convertTVCACKToPivot(const std::string& assetName, st
     // Message structure checks
     if (!checkPivotTypeMatch(dataObject.doType, exchangeConfig)) {
         HnzPivotUtility::log_error("%s Invalid pivot type (%s) for data object type (%s)", //LCOV_EXCL_LINE
-                                    beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str());
+                                    beforeLog.c_str(), exchangeConfig->getPivotType().c_str(), dataObject.doType.c_str()); //LCOV_EXCL_LINE
         return nullptr;
     }
     if (!attributeFound["do_valid"]) {
@@ -405,7 +405,7 @@ std::vector<Datapoint*> HNZPivotFilter::convertDatapointToHNZ(const std::string&
                 pivotIds.push_back(kvp.first);
             }
             HnzPivotUtility::log_error("%s Unknown pivot ID: %s (available: %s)", //LCOV_EXCL_LINE
-                                        beforeLog.c_str(), pivotId.c_str(), HnzPivotUtility::join(pivotIds).c_str());
+                                        beforeLog.c_str(), pivotId.c_str(), HnzPivotUtility::join(pivotIds).c_str()); //LCOV_EXCL_LINE
             return convertedDatapoints;
         }
         auto exchangeConfig = exchangeData[pivotId];
@@ -445,7 +445,7 @@ bool HNZPivotFilter::convertDatapoint(const std::string& assetName, Datapoint* d
     }
     else {
         HnzPivotUtility::log_debug("%s Unhandled datapoint type '%s', forwarding reading unchanged", //LCOV_EXCL_LINE
-                                        beforeLog.c_str(), dp->getName().c_str());
+                                        beforeLog.c_str(), dp->getName().c_str()); //LCOV_EXCL_LINE
         convertedDatapoints.push_back(new Datapoint(dp->getName(), dp->getData()));
         return false;
     }
