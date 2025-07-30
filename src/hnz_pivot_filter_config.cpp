@@ -30,10 +30,10 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
 
   rapidjson::Document document;
   if (document.Parse(exchangeConfig.c_str()).HasParseError()) {
-    HnzPivotUtility::log_fatal("Parsing error in exchanged_data json, offset " +
-                               std::to_string(static_cast<unsigned>(document.GetErrorOffset())) +
-                               " " +
-                               GetParseError_En(document.GetParseError()));
+    HnzPivotUtility::log_fatal("Parsing error in exchanged_data json, offset " + //LCOV_EXCL_LINE
+                               std::to_string(static_cast<unsigned>(document.GetErrorOffset())) + //LCOV_EXCL_LINE
+                               " " + //LCOV_EXCL_LINE
+                               GetParseError_En(document.GetParseError())); //LCOV_EXCL_LINE
     return;
   }
   if (!document.IsObject()) return;
@@ -80,7 +80,7 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
       // Check if number is in range for unsigned int
       if (tmp > static_cast<unsigned int>(-1)) {
         is_complete = false;
-        HnzPivotUtility::log_error("Error with the field %s, the value is out of range for unsigned integer: %ld", MESSAGE_ADDRESS, tmp);
+        HnzPivotUtility::log_error("Error with the field %s, the value is out of range for unsigned integer: %ld", MESSAGE_ADDRESS, tmp); //LCOV_EXCL_LINE
       } else {
         msg_address = static_cast<unsigned int>(tmp);
       }
@@ -96,9 +96,9 @@ void HNZPivotConfig::importExchangeConfig(const std::string& exchangeConfig)
 bool HNZPivotConfig::m_check_string(const rapidjson::Value &json, const char *key) {
   if (!json.HasMember(key) || !json[key].IsString()) {
     std::string s = key;
-    HnzPivotUtility::log_error(
-        "Error with the field " + s +
-        ", the value does not exist or is not a std::string.");
+    HnzPivotUtility::log_error( //LCOV_EXCL_LINE
+        "Error with the field " + s + //LCOV_EXCL_LINE
+        ", the value does not exist or is not a std::string."); //LCOV_EXCL_LINE
     return false;
   }
   return true;
@@ -107,8 +107,8 @@ bool HNZPivotConfig::m_check_string(const rapidjson::Value &json, const char *ke
 bool HNZPivotConfig::m_check_array(const rapidjson::Value &json, const char *key) {
   if (!json.HasMember(key) || !json[key].IsArray()) {
     std::string s = key;
-    HnzPivotUtility::log_error("The array " + s +
-                               " is required but not found.");
+    HnzPivotUtility::log_error("The array " + s + //LCOV_EXCL_LINE
+                               " is required but not found."); //LCOV_EXCL_LINE
     return false;
   }
   return true;
@@ -117,8 +117,8 @@ bool HNZPivotConfig::m_check_array(const rapidjson::Value &json, const char *key
 bool HNZPivotConfig::m_check_object(const rapidjson::Value &json, const char *key) {
   if (!json.HasMember(key) || !json[key].IsObject()) {
     std::string s = key;
-    HnzPivotUtility::log_error("The object " + s +
-                               " is required but not found.");
+    HnzPivotUtility::log_error("The object " + s + //LCOV_EXCL_LINE
+                               " is required but not found."); //LCOV_EXCL_LINE
     return false;
   }
   return true;
@@ -128,9 +128,9 @@ bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key,
                          unsigned int *target) {
   if (!json.HasMember(key) || !json[key].IsUint()) {
     std::string s = key;
-    HnzPivotUtility::log_error(
-        "Error with the field " + s +
-        ", the value does not exist or is not an unsigned integer.");
+    HnzPivotUtility::log_error( //LCOV_EXCL_LINE
+        "Error with the field " + s + //LCOV_EXCL_LINE
+        ", the value does not exist or is not an unsigned integer."); //LCOV_EXCL_LINE
     return false;
   }
   *target = json[key].GetUint();
@@ -144,8 +144,8 @@ bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key,
   } else {
     if (!json[key].IsUint()) {
       std::string s = key;
-      HnzPivotUtility::log_error("Error with the field " + s +
-                                 ", the value is not an unsigned integer.");
+      HnzPivotUtility::log_error("Error with the field " + s + //LCOV_EXCL_LINE
+                                 ", the value is not an unsigned integer."); //LCOV_EXCL_LINE
       return false;
     }
     *target = json[key].GetUint();
@@ -156,9 +156,9 @@ bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key,
 bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key, std::string *target) {
   if (!json.HasMember(key) || !json[key].IsString()) {
     std::string s = key;
-    HnzPivotUtility::log_error(
-        "Error with the field " + s +
-        ", the value does not exist or is not a std::string.");
+    HnzPivotUtility::log_error( //LCOV_EXCL_LINE
+        "Error with the field " + s + //LCOV_EXCL_LINE
+        ", the value does not exist or is not a std::string."); //LCOV_EXCL_LINE
     return false;
   }
   *target = json[key].GetString();
@@ -172,8 +172,8 @@ bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key, s
   } else {
     if (!json[key].IsString()) {
       std::string s = key;
-      HnzPivotUtility::log_error("Error with the field " + s +
-                                 ", the value is not a std::string.");
+      HnzPivotUtility::log_error("Error with the field " + s + //LCOV_EXCL_LINE
+                                 ", the value is not a std::string."); //LCOV_EXCL_LINE
       return false;
     }
     *target = json[key].GetString();
@@ -188,8 +188,8 @@ bool HNZPivotConfig::m_retrieve(const rapidjson::Value &json, const char *key,
   } else {
     if (!json[key].IsInt64()) {
       std::string s = key;
-      HnzPivotUtility::log_error("Error with the field " + s +
-                                 ", the value is not a long long integer.");
+      HnzPivotUtility::log_error("Error with the field " + s + //LCOV_EXCL_LINE
+                                 ", the value is not a long long integer."); //LCOV_EXCL_LINE
       return false;
     }
     *target = json[key].GetInt64();

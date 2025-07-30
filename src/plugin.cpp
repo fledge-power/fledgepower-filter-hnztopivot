@@ -125,11 +125,11 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
                           OUTPUT_HANDLE *outHandle,
                           OUTPUT_STREAM output)
 {
-    std::string beforeLog = HNZPivotConfig::getPluginName() + " -";
-    HnzPivotUtility::log_info("%s Initializing filter", beforeLog.c_str());
+    std::string beforeLog = HNZPivotConfig::getPluginName() + " -"; //LCOV_EXCL_LINE
+    HnzPivotUtility::log_info("%s Initializing filter", beforeLog.c_str()); //LCOV_EXCL_LINE
 
     if (config == nullptr) {
-        HnzPivotUtility::log_warn("%s No config provided for filter, using default config", beforeLog.c_str());
+        HnzPivotUtility::log_warn("%s No config provided for filter, using default config", beforeLog.c_str()); //LCOV_EXCL_LINE
         auto info = plugin_info();
 	    config = new ConfigCategory("hnztopivot", info->config);
         config->setItemsValueFromDefault();

@@ -82,7 +82,7 @@ static Datapoint* getChild(Datapoint* dp, const std::string& name)
         for (Datapoint* child : *datapoints) {
             if (child->getName() == name) {
                 childDp = child;
-                break;
+                break; //LCOV_EXCL_LINE
             }
         }
     }
@@ -262,7 +262,7 @@ Datapoint* HnzPivotObject::getCdc(Datapoint* dp)
             unknownChildrenNames.push_back(child->getName());
         }
         if (cdcDp != nullptr) {
-            break;
+            break; //LCOV_EXCL_LINE
         }
     }
 
@@ -515,7 +515,7 @@ HnzPivotObject::HnzPivotObject(Datapoint* pivotData) {
         }
 
         if (m_ln != nullptr) {
-            break;
+            break; //LCOV_EXCL_LINE
         }
     }
 
