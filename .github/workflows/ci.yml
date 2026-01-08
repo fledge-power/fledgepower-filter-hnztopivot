@@ -12,12 +12,9 @@ on:
   workflow_dispatch:
     inputs:
       tags:
-        description: 'Define the tag'
+        description: 'Define the tag (e.g. v2.3.1). If not set, the current branch or tag name will be used. If set, the scan will generate the report using this tag and run on the specified tag.'
         required: false
-        type: choice
-        options:
-          - v2.0.0
-          - v1.0.0
+        type: string
   
 jobs:
   build:
@@ -112,4 +109,4 @@ jobs:
           --define sonar.projectKey="fledge-power_fledgepower-filter-hnztopivot" \
           --define sonar.inclusions="src/*,include/*" \
           --define sonar.coverageReportPaths="build/hnz_pivot_filter_coverage_sonar-sonarqube.xml" \
-          --define sonar.branch.name="${{ github.event.inputs.tags || github.ref }}"
+          --define sonar.branch.name="${{ github.event.inputs.tags || github.ref_name }}"
