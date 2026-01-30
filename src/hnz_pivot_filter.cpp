@@ -510,16 +510,13 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
         }
     }
 
-    if (!readings->empty())
-    {
-        if (m_func) {
-            HnzPivotUtility::log_debug("%s Send %lu converted readings", beforeLog.c_str(), readings->size()); //LCOV_EXCL_LINE
+    if (m_func) {
+        HnzPivotUtility::log_debug("%s Send %lu converted readings", beforeLog.c_str(), readings->size()); //LCOV_EXCL_LINE
 
-            m_func(m_data, readingSet);
-        }
-        else {
-            HnzPivotUtility::log_error("%s No function to call, discard %lu converted readings", beforeLog.c_str(), readings->size()); //LCOV_EXCL_LINE
-        }
+        m_func(m_data, readingSet);
+    }
+    else {
+        HnzPivotUtility::log_error("%s No function to call, discard %lu converted readings", beforeLog.c_str(), readings->size()); //LCOV_EXCL_LINE
     }
 }
 
