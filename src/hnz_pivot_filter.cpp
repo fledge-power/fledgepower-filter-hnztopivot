@@ -503,6 +503,7 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
         HnzPivotUtility::log_debug("%s converted Reading: %s", beforeLog.c_str(), reading->toJSON().c_str()); //LCOV_EXCL_LINE
 
         if (reading->getReadingData().empty()) {
+            delete reading;
             readIt = readings->erase(readIt);
         }
         else {
