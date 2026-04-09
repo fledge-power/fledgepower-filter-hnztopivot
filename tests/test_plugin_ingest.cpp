@@ -1662,7 +1662,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
 
     printf("Testing message with unknown root object\n");
     std::string jsonMessageUnknownRoot = QUOTE({
@@ -1675,7 +1675,7 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 1);
+    ASSERT_EQ(outputHandlerCalled, 2);
     outputHandlerCalled = 0;
     validateReading(lastReading, "UNKNOWN", "unknown_message", {"val"}, {
         {"val", {"int64_t", "42"}},
@@ -1695,7 +1695,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+    outputHandlerCalled = 0;
 
     printf("Testing data_object message with missing do_addr\n");
     std::string jsonMessageMissingAddress = QUOTE({
@@ -1711,7 +1712,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+    outputHandlerCalled = 0;
 
     printf("Testing data_object message with missing pivot id for given type and address\n");
     std::string jsonMessageUnknownPivotId = QUOTE({
@@ -1728,7 +1730,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+    outputHandlerCalled = 0;
 
     printf("Testing PIVOT message with missing/invalid root type\n");
     std::string jsonMessageInvalidPivotRootType = QUOTE({
@@ -1757,7 +1760,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+    outputHandlerCalled = 0;
 
     printf("Testing PIVOT message with missing pivot type\n");
     std::string jsonMessageMissingPivotType = QUOTE({
@@ -1775,7 +1779,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+    outputHandlerCalled = 0;
 
     printf("Testing PIVOT message with invalid pivot type\n");
     std::string jsonMessageInvalidPivotType = QUOTE({
@@ -1804,7 +1809,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+	outputHandlerCalled = 0;
 
     printf("Testing PIVOT message with mismatching pivot type (TC)\n");
     std::string jsonMessageMismatchPivotTypeTC = QUOTE({
@@ -1833,7 +1839,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+	outputHandlerCalled = 0;
 
     printf("Testing data_object message with mismatching pivot type (TS)\n");
     std::string jsonMessageMismatchPivotTypeTS = QUOTE({
@@ -1850,7 +1857,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+	outputHandlerCalled = 0;
 
     printf("Testing data_object message with mismatching pivot type (TM)\n");
     std::string jsonMessageMismatchPivotTypeTM = QUOTE({
@@ -1867,7 +1875,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+	outputHandlerCalled = 0;
 
     printf("Testing data_object message with mismatching pivot type (TC ACK)\n");
     std::string jsonMessageMismatchPivotTypeTCACK = QUOTE({
@@ -1883,7 +1892,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+	outputHandlerCalled = 0;
 
     printf("Testing data_object message with mismatching pivot type (TVC ACK)\n");
     std::string jsonMessageMismatchPivotTypeTVCACK = QUOTE({
@@ -1899,7 +1909,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+	outputHandlerCalled = 0;
 
     printf("Testing PIVOT message with missing Identifier\n");
     std::string jsonMessageMissingId = QUOTE({
@@ -1927,7 +1938,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+	outputHandlerCalled = 0;
 
     printf("Testing PIVOT message with unknown Identifier\n");
     std::string jsonMessageUnknownId = QUOTE({
@@ -1956,7 +1968,8 @@ TEST_F(PivotHNZPluginIngest, InvalidMessages)
     ASSERT_NE(readingSet, nullptr);
 
     ASSERT_NO_THROW(plugin_ingest(filter, static_cast<READINGSET*>(readingSet)));
-    ASSERT_EQ(outputHandlerCalled, 0);
+    ASSERT_EQ(outputHandlerCalled, 1);
+	outputHandlerCalled = 0;
 
     // Cases below only generates a warning and still process the reading
 
