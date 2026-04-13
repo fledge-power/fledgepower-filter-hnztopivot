@@ -115,7 +115,7 @@ private:
     std::vector<Datapoint*> convertDatapointToHNZ(const std::string& assetName, Datapoint* sourceDp) const;
 
     std::shared_ptr<HNZPivotConfig> m_filterConfig;
-    std::recursive_mutex            m_configMutex;
+    std::mutex                      m_configMutex;
 };
 
 
