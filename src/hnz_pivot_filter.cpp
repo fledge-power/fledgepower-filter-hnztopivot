@@ -9,6 +9,7 @@
  * 
  */
 
+#include <memory>
 #include <plugin_api.h>
 
 #include "hnz_pivot_filter.hpp"
@@ -454,7 +455,7 @@ bool HNZPivotFilter::convertDatapoint(const std::string& assetName, Datapoint* d
 
 void HNZPivotFilter::ingest(READINGSET* readingSet)
 {
-    std::lock_guard<std::recursive_mutex> guard(m_configMutex); //LCOV_EXCL_LINE
+    std::lock_guard<std::mutex> guard(m_configMutex); //LCOV_EXCL_LINE
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - HNZPivotFilter::ingest -"; //LCOV_EXCL_LINE
     if (!isEnabled()) {
         return;
@@ -503,6 +504,7 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
         HnzPivotUtility::log_debug("%s converted Reading: %s", beforeLog.c_str(), reading->toJSON().c_str()); //LCOV_EXCL_LINE
 
         if (reading->getReadingData().empty()) {
+            auto toDelete = std::unique_ptr<Reading>(reading);
             readIt = readings->erase(readIt);
         }
         else {
@@ -510,21 +512,18 @@ void HNZPivotFilter::ingest(READINGSET* readingSet)
         }
     }
 
-    if (!readings->empty())
-    {
-        if (m_func) {
-            HnzPivotUtility::log_debug("%s Send %lu converted readings", beforeLog.c_str(), readings->size()); //LCOV_EXCL_LINE
+    if (m_func) {
+        HnzPivotUtility::log_debug("%s Send %lu converted readings", beforeLog.c_str(), readings->size()); //LCOV_EXCL_LINE
 
-            m_func(m_data, readingSet);
-        }
-        else {
-            HnzPivotUtility::log_error("%s No function to call, discard %lu converted readings", beforeLog.c_str(), readings->size()); //LCOV_EXCL_LINE
-        }
+        m_func(m_data, readingSet);
+    }
+    else {
+        HnzPivotUtility::log_error("%s No function to call, discard %lu converted readings", beforeLog.c_str(), readings->size()); //LCOV_EXCL_LINE
     }
 }
 
 void HNZPivotFilter::reconfigure(const std::string& newConfig) {
-    std::lock_guard<std::recursive_mutex> guard(m_configMutex); //LCOV_EXCL_LINE
+    std::lock_guard<std::mutex> guard(m_configMutex); //LCOV_EXCL_LINE
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - HNZPivotFilter::reconfigure -"; //LCOV_EXCL_LINE
     HnzPivotUtility::log_debug("%s reconfigure called", beforeLog.c_str()); //LCOV_EXCL_LINE
     setConfig(newConfig);
@@ -534,7 +533,7 @@ void HNZPivotFilter::reconfigure(const std::string& newConfig) {
 }
 
 void HNZPivotFilter::readConfig(const ConfigCategory& config) {
-    std::lock_guard<std::recursive_mutex> guard(m_configMutex); //LCOV_EXCL_LINE
+    // Note: caller must hold m_configMutex (or be in constructor)
     std::string beforeLog = HNZPivotConfig::getPluginName() + " - HNZPivotFilter::readConfig -"; //LCOV_EXCL_LINE
     if (config.itemExists("exchanged_data")) {
         const std::string exchangedData = config.getValue("exchanged_data");
